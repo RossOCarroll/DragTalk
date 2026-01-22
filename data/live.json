@@ -1,0 +1,112 @@
+[
+  {
+    "date": "2025-08-12",
+    "time": "20:00",
+    "city": "New York",
+    "country": "USA",
+    "venue": "Brooklyn Steel",
+    "ticketUrl": "https://example.com/tickets/nyc",
+    "soldOut": true,
+    "notes": "Special guest opening act"
+  },
+  {
+    "date": "2025-08-15",
+    "time": "19:30",
+    "city": "Los Angeles",
+    "country": "USA",
+    "venue": "The Roxy Theatre",
+    "ticketUrl": "https://example.com/tickets/la",
+    "soldOut": true,
+    "notes": "VIP packages available"
+  },
+  {
+    "date": "2025-09-01",
+    "time": "21:00",
+    "city": "London",
+    "country": "UK",
+    "venue": "O2 Academy Brixton",
+    "ticketUrl": "https://example.com/tickets/london",
+    "soldOut": true,
+    "notes": ""
+  },
+  {
+    "date": "2025-09-04",
+    "time": "20:00",
+    "city": "Paris",
+    "country": "France",
+    "venue": "Le Trianon",
+    "ticketUrl": "https://example.com/tickets/paris",
+    "soldOut": true,
+    "notes": "Sold out in 24 hours!"
+  },
+  {
+    "date": "2025-09-07",
+    "time": "19:00",
+    "city": "Berlin",
+    "country": "Germany",
+    "venue": "Berghain Kantine",
+    "ticketUrl": "https://example.com/tickets/berlin",
+    "soldOut": true,
+    "notes": ""
+  },
+  {
+    "date": "2026-03-05",
+    "time": "20:30",
+    "city": "Tokyo",
+    "country": "Japan",
+    "venue": "Zepp Tokyo",
+    "ticketUrl": "https://example.com/tickets/tokyo",
+    "soldOut": false,
+    "notes": "First show in Japan!"
+  },
+  {
+    "date": "2026-03-08",
+    "time": "19:00",
+    "city": "Seoul",
+    "country": "South Korea",
+    "venue": "Yes24 Live Hall",
+    "ticketUrl": "https://example.com/tickets/seoul",
+    "soldOut": false,
+    "notes": ""
+  },
+  {
+    "date": "2026-03-12",
+    "time": "21:00",
+    "city": "Sydney",
+    "country": "Australia",
+    "venue": "Enmore Theatre",
+    "ticketUrl": "https://example.com/tickets/sydney",
+    "soldOut": false,
+    "notes": ""
+  },
+  {
+    "date": "2026-03-15",
+    "time": "20:00",
+    "city": "Melbourne",
+    "country": "Australia",
+    "venue": "Corner Hotel",
+    "ticketUrl": "https://example.com/tickets/melbourne",
+    "soldOut": false,
+    "notes": ""
+  },
+  {
+    "date": "2026-04-02",
+    "time": "20:30",
+    "city": "Toronto",
+    "country": "Canada",
+    "venue": "Phoenix Concert Theatre",
+    "ticketUrl": "https://example.com/tickets/toronto",
+    "soldOut": false,
+    "notes": ""
+  },
+  {
+    "date": "2026-04-05",
+    "time": "20:00",
+    "city": "Montreal",
+    "country": "Canada",
+    "venue": "MTELUS",
+    "ticketUrl": "https://example.com/tickets/montreal",
+    "soldOut": false,
+    "notes": ""
+  }
+]

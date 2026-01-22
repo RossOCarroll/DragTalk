@@ -1,0 +1,58 @@
+[
+  {
+    "id": 1,
+    "title": "DOGS",
+    "cover": "assets/img/dogs_album_cover.jpg",
+    "releaseYear": 2023,
+    "streaming": [
+      {
+        "platform": "Spotify",
+        "url": "https://open.spotify.com/album/6x5TJcoUWoNW6vyL6EAv2e?si=mA_3MyiXRKqwET674PT1Ug",
+        "icon": "assets/img/svg/spotify.svg"
+      },
+      {
+        "platform": "Bandcamp",
+        "url": "https://dragtalk.bandcamp.com/album/dogs",
+        "icon": "assets/img/svg/bandcamp.svg"
+      },
+      {
+        "platform": "Apple Music",
+        "url": "https://music.apple.com/us/album/dogs-ep/1650282055",
+        "icon": "assets/img/svg/apple.svg"
+      },
+      {
+        "platform": "YouTube",
+        "url": "https://www.youtube.com/playlist?list=OLAK5uy_nnXELexHCIUSRPIsZvQ0LVfFVKM3lU7mA",
+        "icon": "assets/img/svg/youtube.svg"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Rosy Crown",
+    "cover": "assets/img/rosy_crown_cover.jpg",
+    "releaseYear": 2024,
+    "streaming": [
+      {
+        "platform": "Spotify",
+        "url": "https://open.spotify.com/album/3LmXiV4kLsrIPI8m4hSk15?si=zn5Jj7whSoe9eswotg4sbQ",
+        "icon": "assets/img/svg/spotify.svg"
+      },
+      {
+        "platform": "Bandcamp",
+        "url": "https://dragtalk.bandcamp.com/album/rosy-crown",
+        "icon": "assets/img/svg/bandcamp.svg"
+      },
+      {
+        "platform": "Apple Music",
+        "url": "https://music.apple.com/us/album/rosy-crown-ep/1732752175",
+        "icon": "assets/img/svg/apple.svg"
+      },
+      {
+        "platform": "YouTube",
+        "url": "https://music.youtube.com/channel/UC5vg1Vjym8Hpj2pwulwaltw",
+        "icon": "assets/img/svg/youtube.svg"
+      }
+    ]
+  }
+]
