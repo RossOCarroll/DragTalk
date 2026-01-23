@@ -189,6 +189,7 @@ class BandPage {
         <p class="tour-venue">${venue}</p>
       </div>
       <div class="tour-tickets">
+        <a href="https://www.bandsintown.com/a/15530173-drag-talk" class="rsvp" target="_blank">RSVP</a>
         <a href="${ticketUrl}" target="_blank" ${soldOut ? 'class="sold-out"' : ''}>
           ${soldOut ? 'Sold Out' : 'Tickets'}
         </a>

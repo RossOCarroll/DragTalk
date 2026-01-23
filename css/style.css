@@ -18,12 +18,17 @@
   padding: 0;
 }
 
+main {
+  padding-top: 6rem;
+}
+
 body {
   font-family: 'Funnel Sans', sans-serif;
   color: var(--text-color);
   background-color: var(--secondary-color);
   line-height: 1.6;
   min-height: 100vh;
+  padding-top: 6rem;
 }
 
 h1 {
@@ -35,12 +40,16 @@ h1 {
 /* -------------------- */
 
 header {
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: var(--primary-color);
+  background-color: var(--secondary-color);
 }
 
 nav ul {
@@ -75,6 +84,46 @@ nav a.active {
   width: 500px;
   height: auto;
 }
+
+.button {
+  display: inline-block;
+  margin: 1rem 0 1rem 0;
+  width: 220px;
+  padding: 0.35rem 0;
+  text-align: center;
+  background-color: var(--accent-color);
+  color: #fff;
+  border-radius: 2rem;
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: background-color 0.2s ease;
+}
+
+.button:hover {
+  background-color: var(--primary-color);
+  color: var(--accent-color);
+}
+
+.bandsintown-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+.bandsintown-icon {
+  width: 18px;
+  height: 18px;
+  fill: currentColor; /* THIS is the key */
+}
+
+.bands-in-town {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* THIS is the key */
+  gap: 0.75rem;
+}
+
 
 /* -------------------- */
 /* Main / Hero Section  */
@@ -136,9 +185,9 @@ footer.social svg:hover {
 /* Music Section */
 .section-title {
   font-family: var(--font-heading);
-  font-size: 2.5rem;
+  font-size: 5rem;
   text-align: center;
-  margin: 3rem 0;   /* spacing above and below */
+  margin: 3rem 0 1rem 0;   /* spacing above and below */
   color: var(--text-color);
   width: 100%;
   display: block;
@@ -307,19 +356,42 @@ footer.social svg:hover {
 }
 
 .tour-tickets {
-  margin-left: 2rem; /* space from left column */
+  display: flex;
+  gap: 0.75rem;
 }
 
 .tour-tickets a {
   display: inline-block;
-  padding: 0.6rem 1.2rem;
+  width: 180px;
+  padding: 0.35rem 3.5rem;
   background-color: var(--accent-color);
   color: #fff;
-  border-radius: 0.25rem;
+  border-radius: 2rem;
   text-decoration: none;
   font-weight: bold;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
+
+.tour-tickets a:hover {
+  background-color: var(--primary-color);
+  color: var(--accent-color);      
+}
+
+.tour-tickets a.rsvp {
+  padding: 0.35rem 3.5rem;
+  border-radius: 2rem;
+  background-color: var(--accent-color);
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.tour-tickets a.rsvp:hover {
+  background-color: var(--primary-color);
+  color: var(--accent-color); 
+}
+
 
 /* -------------------- */
 /* Responsive           */
