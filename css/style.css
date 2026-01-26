@@ -289,42 +289,6 @@ footer.social svg:hover {
 
 
 
-
-/* -------------------- */
-/* Video Modal          */
-/* -------------------- */
-
-.video-modal {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0,0,0,0.9);
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-.video-modal-content {
-  position: relative;
-  width: 90%;
-  max-width: 1200px;
-  aspect-ratio: 16 / 9;
-}
-
-.video-modal iframe {
-  width: 100%;
-  height: 100%;
-}
-
-.video-modal-close {
-  position: absolute;
-  top: -40px;
-  right: 0;
-  font-size: 3rem;
-  color: white;
-  cursor: pointer;
-}
-
 /* -------------------- */
 /* Live / Tour Dates     */
 /* -------------------- */
@@ -342,7 +306,7 @@ footer.social svg:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 1100px;
+  width: 900px;
   border-bottom: 2px solid var(--primary-color);
   padding: 0.75rem 0;
 }
