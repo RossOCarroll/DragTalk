@@ -5,7 +5,6 @@ console.error = function(message, ...optionalParams) {
   }
 };
 
-
 class BandPage {
   constructor() {
     this.navBar = document.querySelectorAll('nav a');
@@ -27,6 +26,23 @@ class BandPage {
     })
   }
 
+  normalizeDate(dateStr) {
+    const date = new Date(dateStr);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+  
+  splitDatesByTime(liveDates) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+  
+    return {
+      past: liveDates.filter(d => this.normalizeDate(d.date) < today),
+      upcoming: liveDates.filter(d => this.normalizeDate(d.date) >= today)
+    };
+  }
+  
+
   async loadSection(url) {
     try {
       const response = await fetch(url);
@@ -41,7 +57,7 @@ class BandPage {
       } else if (url === 'sections/music-section.html') {
         content = await this.loadMusic(doc.querySelector('section'));
       } else if (url === 'sections/live-section.html') {
-        content = await this.loadLive(doc.querySelector('section'))
+        content = await this.loadLive(doc.querySelector('section'));
       } else {
         content = doc.querySelector('section'); 
       }
@@ -146,39 +162,87 @@ class BandPage {
     }
   }
 
+  createPassedLinkDiv(onPastClick, onUpcomingClick) {
+    const div = document.createElement('div');
+    div.classList.add('live-links');
+  
+    const pastLink = document.createElement('a');
+    pastLink.textContent = 'PAST';
+  
+    const upcomingLink = document.createElement('a');
+    upcomingLink.textContent = 'UPCOMING';
+  
+    pastLink.addEventListener('click', e => {
+      e.preventDefault();
+      pastLink.classList.add('active');
+      upcomingLink.classList.remove('active');
+      onPastClick();
+    });
+    
+    upcomingLink.addEventListener('click', e => {
+      e.preventDefault();
+      upcomingLink.classList.add('active');
+      pastLink.classList.remove('active');
+      onUpcomingClick();
+    });
+    
+    div.append(pastLink, upcomingLink);
+    return div;
+  }
+  
   async loadLive(section) {
     try {
       const response = await fetch('/data/live.json');
       if (!response.ok) throw new Error('Failed to fetch live dates');
   
       const liveDates = await response.json();
+      const { past, upcoming } = this.splitDatesByTime(liveDates);
+  
+      const container = document.createElement('div');
+      container.classList.add('live-list');
+  
       const datesDiv = document.createElement('div');
-      datesDiv.classList.add('live-list');
+      datesDiv.classList.add('live-dates');
   
-      liveDates.forEach(liveDate => {
-        const tourEntry = document.createElement('div');
-        tourEntry.classList.add('tour-entry');
+      const renderDates = dates => {
+        datesDiv.innerHTML = '';
+
+        if (dates.length === 0) {
+          datesDiv.innerHTML = `<p class="no-dates">No shows listed</p>`;
+          return;
+        }
+
+        dates.forEach(liveDate => {
+          const entry = document.createElement('div');
+          entry.classList.add('tour-entry');
+          entry.innerHTML = this.buildDate(
+            liveDate.date,
+            liveDate.time,
+            liveDate.city,
+            liveDate.country,
+            liveDate.venue,
+            liveDate.ticketUrl,
+            liveDate.soldOut
+          );
+          datesDiv.appendChild(entry);
+        });
+      };
   
-        tourEntry.innerHTML = this.buildDate(
-          liveDate.date,
-          liveDate.time,
-          liveDate.city,
-          liveDate.country,
-          liveDate.venue,
-          liveDate.ticketUrl,
-          liveDate.soldOut
-        );
+      renderDates(upcoming);
   
-        datesDiv.appendChild(tourEntry);
-      });
+      const links = this.createPassedLinkDiv(
+        () => renderDates(past), // past (placeholder)
+        () => renderDates(upcoming)  // upcoming (placeholder)
+      );
   
-      section.appendChild(datesDiv);
+      container.append(links, datesDiv);
+      section.appendChild(container);
       return section;
+  
     } catch (err) {
       console.error('Error loading live', err);
     }
   }
-  
 
   buildDate(date, time, city, country, venue, ticketUrl, soldOut) {
     return `
@@ -196,16 +260,21 @@ class BandPage {
       </div>
     `;
   }
-  
 
+  loadHome() {
+    const homeSection = this.loadSection('sections/home-section.html');
+    const liveSection = this.loadSection('sections/live-section.html');
+    const videoSection = this.loadSection('sections/videos-sections.html');
+
+    homeSection.a
+  }
+  
   resetNav(activeLink) {
     this.navBar.forEach(link => {
       link.classList.remove('active');
     });
     if (activeLink) activeLink.classList.add('active');
   }
-  
-  
 };
 
 document.addEventListener('DOMContentLoaded', () => {

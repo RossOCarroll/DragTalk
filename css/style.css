@@ -311,6 +311,14 @@ footer.social svg:hover {
   padding: 0.75rem 0;
 }
 
+.live-links {
+  display: flex;
+  align-items: left;
+  font-weight: 600;
+  gap: 1rem;
+  cursor: pointer;
+}
+
 .tour-info {
   display: flex;
   flex-direction: column;
@@ -355,6 +363,11 @@ footer.social svg:hover {
   background-color: var(--primary-color);
   color: var(--accent-color); 
 }
+
+.live-links a.active {
+  color: var(--accent-color);
+}
+
 
 
 /* -------------------- */
