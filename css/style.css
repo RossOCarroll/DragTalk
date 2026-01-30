@@ -369,6 +369,67 @@ footer.social svg:hover {
 }
 
 
+/* -------------------- */
+/* Sign Up              */
+/* -------------------- */
+.signup-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Full-width rows */
+.signup-form .full {
+  grid-column: 1 / -1;
+}
+
+/* Field stack */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Inputs */
+.form-field input,
+.form-field select {
+  padding: 0.75rem;
+  background: transparent;
+  border: 1px solid currentColor;
+  font-size: 0.95rem;
+}
+
+/* Labels */
+.form-field label {
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.marketing h3 {
+  font-size: 1rem;
+}
+
+.marketing-copy, .checkbox-row, .privacy-note {
+  font-size: .75rem;
+}
+
+.form-actions button {
+  width: 200px;
+  padding: 0.5rem 3.5rem;
+  font-size: 1rem;
+  background-color: var(--accent-color);
+  color: #fff;
+  border-radius: 2rem;
+  border: none; /* <-- removes the border */
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  cursor: pointer; /* optional: makes it look clickable */
+}
 
 /* -------------------- */
 /* Responsive           */

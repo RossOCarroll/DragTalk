@@ -58,6 +58,8 @@ class BandPage {
         content = await this.loadMusic(doc.querySelector('section'));
       } else if (url === 'sections/live-section.html') {
         content = await this.loadLive(doc.querySelector('section'));
+      } else if (url === 'sections/sign-up-section.html') {
+        content = await this.loadSignUp(doc.querySelector('section'));
       } else {
         content = doc.querySelector('section'); 
       }
@@ -259,6 +261,30 @@ class BandPage {
         </a>
       </div>
     `;
+  }
+
+  async loadSignUp(section) {
+    try {
+      const countrySelect = section.querySelector('#country');
+      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
+      if(!response.ok) {
+        throw new Error('Failed to load countries');
+      }
+
+      const countries = await response.json();
+      countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
+
+      countries.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.cca2;
+        option.textContent = country.name.common;
+        countrySelect.appendChild(option)
+      })
+
+      return section
+    }catch(error) {
+      console.error(error)
+    }
   }
 
   loadHome() {
