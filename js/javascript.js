@@ -47,7 +47,7 @@ class BandPage {
 
   async loadSection(url) {
     try {
-      const response = await fetch(url);
+      const response = await fetch(`./${url}`);
       if (!response.ok) throw new Error('Page not found');
   
       const html = await response.text();
@@ -78,7 +78,7 @@ class BandPage {
 
   async loadVideos(section) {
     try {
-      const response = await fetch('/data/videos.json');
+      const response = await fetch('./data/videos.json'); 
       if (!response.ok) throw new Error('Failed to fetch videos');
 
       const videos = await response.json();
@@ -117,7 +117,7 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const response = await fetch('/data/music.json');
+      const response = await fetch('./data/music.json');
       if (!response.ok) throw new Error('Failed to fetch music');
       const albums = await response.json();
 
@@ -199,7 +199,7 @@ class BandPage {
   
   async loadLive(section) {
     try {
-      const response = await fetch('/data/live.json');
+      const response = await fetch('./data/live.json');
       if (!response.ok) throw new Error('Failed to fetch live dates');
   
       const liveDates = await response.json();
