@@ -10,18 +10,20 @@ class BandPage {
     this.navBar = document.querySelectorAll('nav a');
     this.mainContent = document.getElementById('main-content');
     this.navBarDelegation(this.navBar);
-    this.loadSection('sections/home-section.html');
+    this.loadHome();
   }
 
   navBarDelegation(navBar) {
     navBar.forEach(link => {
       link.addEventListener('click', event => {
-        event.preventDefault();
+        if (event.target.textContent !== 'STORE') {
+          event.preventDefault();
 
-        link.classList.add('active');
-        const url = link.getAttribute('href');
-        this.loadSection(url);
-        this.resetNav(link);          
+          link.classList.add('active');
+          const url = link.getAttribute('href');
+          this.loadSection(url);
+          this.resetNav(link);          
+        }
       })
     })
   }
@@ -60,6 +62,9 @@ class BandPage {
         content = await this.loadLive(doc.querySelector('section'));
       } else if (url === 'sections/sign-up-section.html') {
         content = await this.loadSignUp(doc.querySelector('section'));
+      } else if (url === 'sections/home-section.html') {
+        this.loadHome();
+        return;
       } else {
         content = doc.querySelector('section'); 
       }
@@ -281,19 +286,102 @@ class BandPage {
         countrySelect.appendChild(option)
       })
 
+      const form = section.querySelector('.signup-form');
+      form.addEventListener('submit', e => this.handleSubmitForm(e));
+
       return section
     }catch(error) {
       console.error(error)
     }
   }
 
-  loadHome() {
-    const homeSection = this.loadSection('sections/home-section.html');
-    const liveSection = this.loadSection('sections/live-section.html');
-    const videoSection = this.loadSection('sections/videos-sections.html');
-
-    homeSection.a
+  async fetchSectionNode(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to load ${url}`);
+  
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.querySelector('section');
   }
+  
+
+  async loadHome() {
+    try {
+      const homeSection = await this.fetchSectionNode('/sections/home-section.html');
+  
+      const liveSection = await this.fetchSectionNode('/sections/live-section.html');
+      const musicSection = await this.fetchSectionNode('/sections/music-section.html');
+      const videosSection = await this.fetchSectionNode('/sections/videos-section.html');
+      const signUpSection = await this.fetchSectionNode('/sections/sign-up-section.html');
+  
+      await this.loadLive(liveSection);
+      await this.loadMusic(musicSection);
+      await this.loadVideos(videosSection);
+      await this.loadSignUp(signUpSection);
+  
+      homeSection.append(
+        liveSection,
+        musicSection,
+        videosSection,
+        signUpSection
+      );
+  
+      this.mainContent.innerHTML = '';
+      this.mainContent.appendChild(homeSection);
+  
+    } catch (error) {
+      console.error('Error loading home', error);
+    }
+  }
+  
+  handleSubmitForm(event) {
+    event.preventDefault();
+  
+    const form = event.currentTarget;
+  
+    const email = form.querySelector('#email').value.trim();
+    const firstName = form.querySelector('#first_name').value.trim();
+    const lastName = form.querySelector('#last_name').value.trim();
+    const country = form.querySelector('#country').value;
+    const marketingConsent = form.querySelector('#marketing_email').checked;
+  
+    if (!email || !marketingConsent) {
+      return;
+    }
+  
+    window._learnq = window._learnq || [];
+  
+    _learnq.push(['identify', {
+      $email: email,
+      $first_name: firstName,
+      $last_name: lastName,
+      Country: country,
+      Marketing_Email: marketingConsent,
+      Source: 'Website Signup'
+    }]);
+  
+    _learnq.push(['subscribe', {
+      list: 'LIST_ID',
+      email: email
+    }]);
+  
+    form.reset();
+  
+    this.showSignupSuccess(form);
+  }
+  
+  showSignupSuccess(form) {
+    let msg = form.querySelector('.signup-success');
+  
+    if (!msg) {
+      msg = document.createElement('p');
+      msg.className = 'signup-success';
+      msg.textContent = 'Thanks for signing up — see you at the show 🤘';
+      form.appendChild(msg);
+    }
+  }
+  
+  
   
   resetNav(activeLink) {
     this.navBar.forEach(link => {

@@ -78,9 +78,8 @@ nav a.active {
 }
 
 .home-logo-center {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  display: block;
+  margin: 0 auto;
   width: 500px;
   height: auto;
 }
@@ -185,9 +184,10 @@ footer.social svg:hover {
 /* Music Section */
 .section-title {
   font-family: var(--font-heading);
-  font-size: 5rem;
+  font-size: 3.5rem;
+  font-weight: 550;
   text-align: center;
-  margin: 3rem 0 1rem 0;   /* spacing above and below */
+  margin: 3rem 0 3rem 0;   /* spacing above and below */
   color: var(--text-color);
   width: 100%;
   display: block;
@@ -258,6 +258,8 @@ footer.social svg:hover {
 }
 
 .video-grid {
+  width: 900px;
+  margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.25rem;
