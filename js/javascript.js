@@ -1,3 +1,11 @@
+const BASE_PATH = location.hostname === '127.0.0.1' || location.hostname === 'localhost'
+  ? './'                   // local server
+  : '/DragTalk/';          // GitHub Pages project
+
+function path(url) {
+  return `${BASE_PATH}${url}`;
+}
+
 const originalConsoleError = console.error;
 console.error = function(message, ...optionalParams) {
   if (typeof message === 'string' && message.includes(location.hostname)) {
@@ -47,7 +55,7 @@ class BandPage {
 
   async loadSection(url) {
     try {
-      const response = await fetch(`./${url}`);
+      const response = await fetch(path(url));
       if (!response.ok) throw new Error('Page not found');
   
       const html = await response.text();
@@ -78,7 +86,7 @@ class BandPage {
 
   async loadVideos(section) {
     try {
-      const response = await fetch('./data/videos.json'); 
+      const response = await fetch(path('data/videos.json')); 
       if (!response.ok) throw new Error('Failed to fetch videos');
 
       const videos = await response.json();
@@ -117,7 +125,7 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const response = await fetch('./data/music.json');
+      const response = await fetch(path('data/music.json'));
       if (!response.ok) throw new Error('Failed to fetch music');
       const albums = await response.json();
 
@@ -146,10 +154,8 @@ class BandPage {
           link.target = '_blank';
           link.setAttribute('aria-label', service.platform);
 
-
           const img = document.createElement('img');
           img.src = service.icon;
-
 
           link.appendChild(img);
           streamingDiv.appendChild(link);
@@ -199,7 +205,7 @@ class BandPage {
   
   async loadLive(section) {
     try {
-      const response = await fetch('./data/live.json');
+      const response = await fetch(path('data/live.json'));
       if (!response.ok) throw new Error('Failed to fetch live dates');
   
       const liveDates = await response.json();
@@ -238,8 +244,8 @@ class BandPage {
       renderDates(upcoming);
   
       const links = this.createPassedLinkDiv(
-        () => renderDates(past), // past (placeholder)
-        () => renderDates(upcoming)  // upcoming (placeholder)
+        () => renderDates(past),
+        () => renderDates(upcoming)
       );
   
       container.append(links, datesDiv);
@@ -272,9 +278,7 @@ class BandPage {
     try {
       const countrySelect = section.querySelector('#country');
       const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-      if(!response.ok) {
-        throw new Error('Failed to load countries');
-      }
+      if(!response.ok) throw new Error('Failed to load countries');
 
       const countries = await response.json();
       countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
@@ -296,23 +300,22 @@ class BandPage {
   }
 
   async fetchSectionNode(url) {
-    const response = await fetch(url);
+    const response = await fetch(path(url));
     if (!response.ok) throw new Error(`Failed to load ${url}`);
   
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.querySelector('section');
   }
-  
 
   async loadHome() {
     try {
-      const homeSection = await this.fetchSectionNode('/sections/home-section.html');
+      const homeSection = await this.fetchSectionNode('sections/home-section.html');
   
-      const liveSection = await this.fetchSectionNode('/sections/live-section.html');
-      const musicSection = await this.fetchSectionNode('/sections/music-section.html');
-      const videosSection = await this.fetchSectionNode('/sections/videos-section.html');
-      const signUpSection = await this.fetchSectionNode('/sections/sign-up-section.html');
+      const liveSection = await this.fetchSectionNode('sections/live-section.html');
+      const musicSection = await this.fetchSectionNode('sections/music-section.html');
+      const videosSection = await this.fetchSectionNode('sections/videos-section.html');
+      const signUpSection = await this.fetchSectionNode('sections/sign-up-section.html');
   
       await this.loadLive(liveSection);
       await this.loadMusic(musicSection);
@@ -345,9 +348,7 @@ class BandPage {
     const country = form.querySelector('#country').value;
     const marketingConsent = form.querySelector('#marketing_email').checked;
   
-    if (!email || !marketingConsent) {
-      return;
-    }
+    if (!email || !marketingConsent) return;
   
     window._learnq = window._learnq || [];
   
@@ -366,13 +367,11 @@ class BandPage {
     }]);
   
     form.reset();
-  
     this.showSignupSuccess(form);
   }
   
   showSignupSuccess(form) {
     let msg = form.querySelector('.signup-success');
-  
     if (!msg) {
       msg = document.createElement('p');
       msg.className = 'signup-success';
@@ -381,16 +380,12 @@ class BandPage {
     }
   }
   
-  
-  
   resetNav(activeLink) {
-    this.navBar.forEach(link => {
-      link.classList.remove('active');
-    });
+    this.navBar.forEach(link => link.classList.remove('active'));
     if (activeLink) activeLink.classList.add('active');
   }
-};
+}
 
 document.addEventListener('DOMContentLoaded', () => {
-  new BandPage()
-})
+  new BandPage();
+});
