@@ -1,129 +1,121 @@
 const BASE_PATH = location.hostname === '127.0.0.1' || location.hostname === 'localhost'
-  ? './'                   // local server
-  : '/DragTalk/';          // GitHub Pages project
-
-function path(url) {
-  return `${BASE_PATH}${url}`;
-}
-
-const originalConsoleError = console.error;
-console.error = function(message, ...optionalParams) {
-  if (typeof message === 'string' && message.includes(location.hostname)) {
-    originalConsoleError(message, ...optionalParams);
-  }
-};
+  ? './'        // local server
+  : '/DragTalk/'; // GitHub Pages project
 
 class BandPage {
   constructor() {
     this.navBar = document.querySelectorAll('nav a');
     this.mainContent = document.getElementById('main-content');
-    this.navBarDelegation(this.navBar);
+    this.navBarDelegation();
     this.loadHome();
   }
 
-  navBarDelegation(navBar) {
-    navBar.forEach(link => {
-      link.addEventListener('click', event => {
-        const section = link.dataset.section;
-  
-        if (!section) return; // STORE link, skip
-        event.preventDefault();
-  
+  // Handle navbar clicks
+  navBarDelegation() {
+    this.navBar.forEach(link => {
+      const section = link.dataset.section;
+      if (!section) return; // external STORE link
+
+      link.addEventListener('click', e => {
+        e.preventDefault();
         this.resetNav(link);
         link.classList.add('active');
-  
+
         if (section === 'home') {
           this.loadHome();
         } else {
-          this.loadSection(`sections/${section}-section.html`);
+          this.loadSection(`${BASE_PATH}sections/${section}-section.html`);
         }
       });
     });
   }
-  
 
-  normalizeDate(dateStr) {
-    const date = new Date(dateStr);
-    date.setHours(0, 0, 0, 0);
-    return date;
+  resetNav(activeLink) {
+    this.navBar.forEach(link => link.classList.remove('active'));
+    if (activeLink) activeLink.classList.add('active');
   }
-  
-  splitDatesByTime(liveDates) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-  
-    return {
-      past: liveDates.filter(d => this.normalizeDate(d.date) < today),
-      upcoming: liveDates.filter(d => this.normalizeDate(d.date) >= today)
-    };
+
+  async fetchSectionNode(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Failed to load ${url}`);
+
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.querySelector('section');
   }
-  
 
   async loadSection(url) {
     try {
-      const response = await fetch(path(url));
-      if (!response.ok) throw new Error('Page not found');
-  
-      const html = await response.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      let content
+      const section = await this.fetchSectionNode(url);
 
-      if (url === 'sections/videos-section.html') {
-        content = await this.loadVideos(doc.querySelector('section'));
-      } else if (url === 'sections/music-section.html') {
-        content = await this.loadMusic(doc.querySelector('section'));
-      } else if (url === 'sections/live-section.html') {
-        content = await this.loadLive(doc.querySelector('section'));
-      } else if (url === 'sections/sign-up-section.html') {
-        content = await this.loadSignUp(doc.querySelector('section'));
-      } else if (url === 'sections/home-section.html') {
-        this.loadHome();
-        return;
-      } else {
-        content = doc.querySelector('section'); 
-      }
-      
+      // Special section loaders
+      if (url.includes('videos-section.html')) await this.loadVideos(section);
+      if (url.includes('music-section.html')) await this.loadMusic(section);
+      if (url.includes('live-section.html')) await this.loadLive(section);
+      if (url.includes('sign-up-section.html')) await this.loadSignUp(section);
+
       this.mainContent.innerHTML = '';
-      this.mainContent.appendChild(content);
+      this.mainContent.appendChild(section);
     } catch (err) {
-      console.error('Error loading page', err);
+      console.error('Error loading section', err);
     }
   }
 
+  async loadHome() {
+    try {
+      const homeSection = await this.fetchSectionNode(`${BASE_PATH}sections/home-section.html`);
+      const sections = ['live', 'music', 'videos', 'sign-up'];
+
+      for (const sec of sections) {
+        const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
+
+        // load any dynamic content
+        if (sec === 'live') await this.loadLive(node);
+        if (sec === 'music') await this.loadMusic(node);
+        if (sec === 'videos') await this.loadVideos(node);
+        if (sec === 'sign-up') await this.loadSignUp(node);
+
+        homeSection.appendChild(node);
+      }
+
+      this.mainContent.innerHTML = '';
+      this.mainContent.appendChild(homeSection);
+    } catch (err) {
+      console.error('Error loading home', err);
+    }
+  }
+
+  // ---------------- Dynamic Content Loaders ----------------
   async loadVideos(section) {
     try {
-      const response = await fetch(path('data/videos.json')); 
-      if (!response.ok) throw new Error('Failed to fetch videos');
-
-      const videos = await response.json();
+      const res = await fetch(`${BASE_PATH}data/videos.json`);
+      const videos = await res.json();
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
 
       videos.forEach(video => {
         const videoEl = document.createElement('div');
         videoEl.classList.add('video');
-  
+
         const frame = document.createElement('div');
         frame.classList.add('video-frame');
-  
+
         const iframe = document.createElement('iframe');
         iframe.src = video.src;
         iframe.allowFullscreen = true;
         iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
 
-        const h1 = document.createElement('h1');
-        h1.classList.add('video-title');
-        h1.textContent = video.title;
-  
+        const title = document.createElement('h1');
+        title.classList.add('video-title');
+        title.textContent = video.title;
+
         frame.appendChild(iframe);
         videoEl.appendChild(frame);
-        videoEl.appendChild(h1);
+        videoEl.appendChild(title);
         grid.appendChild(videoEl);
-      })
+      });
 
       section.appendChild(grid);
-
-      return section;
     } catch (err) {
       console.error('Error loading videos', err);
     }
@@ -131,10 +123,8 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const response = await fetch(path('data/music.json'));
-      if (!response.ok) throw new Error('Failed to fetch music');
-      const albums = await response.json();
-
+      const res = await fetch(`${BASE_PATH}data/music.json`);
+      const albums = await res.json();
       const albumsDiv = document.createElement('div');
       albumsDiv.classList.add('albums');
 
@@ -152,118 +142,78 @@ class BandPage {
         released.textContent = `Released: ${album.releaseYear}`;
 
         const streamingDiv = document.createElement('div');
-        streamingDiv.classList.add('streaming'); 
+        streamingDiv.classList.add('streaming');
 
-        album.streaming.forEach(service => {
+        album.streaming.forEach(s => {
           const link = document.createElement('a');
-          link.href = service.url;
+          link.href = s.url;
           link.target = '_blank';
-          link.setAttribute('aria-label', service.platform);
+          link.setAttribute('aria-label', s.platform);
 
           const img = document.createElement('img');
-          img.src = service.icon;
+          img.src = s.icon;
 
           link.appendChild(img);
           streamingDiv.appendChild(link);
-        })
+        });
 
-        albumDiv.appendChild(cover);
-        albumDiv.appendChild(title);
-        albumDiv.appendChild(released);
-        albumDiv.appendChild(streamingDiv);
+        albumDiv.append(cover, title, released, streamingDiv);
         albumsDiv.appendChild(albumDiv);
-      })
-      section.appendChild(albumsDiv);
-      return section;
+      });
 
+      section.appendChild(albumsDiv);
     } catch (err) {
       console.error('Error loading music', err);
     }
   }
 
-  createPassedLinkDiv(onPastClick, onUpcomingClick) {
-    const div = document.createElement('div');
-    div.classList.add('live-links');
-  
-    const pastLink = document.createElement('a');
-    pastLink.textContent = 'PAST';
-  
-    const upcomingLink = document.createElement('a');
-    upcomingLink.textContent = 'UPCOMING';
-  
-    pastLink.addEventListener('click', e => {
-      e.preventDefault();
-      pastLink.classList.add('active');
-      upcomingLink.classList.remove('active');
-      onPastClick();
-    });
-    
-    upcomingLink.addEventListener('click', e => {
-      e.preventDefault();
-      upcomingLink.classList.add('active');
-      pastLink.classList.remove('active');
-      onUpcomingClick();
-    });
-    
-    div.append(pastLink, upcomingLink);
-    return div;
-  }
-  
   async loadLive(section) {
     try {
-      const response = await fetch(path('data/live.json'));
-      if (!response.ok) throw new Error('Failed to fetch live dates');
-  
-      const liveDates = await response.json();
-      const { past, upcoming } = this.splitDatesByTime(liveDates);
-  
+      const res = await fetch(`${BASE_PATH}data/live.json`);
+      const liveDates = await res.json();
+
+      const today = new Date();
+      today.setHours(0,0,0,0);
+
+      const past = liveDates.filter(d => new Date(d.date) < today);
+      const upcoming = liveDates.filter(d => new Date(d.date) >= today);
+
       const container = document.createElement('div');
       container.classList.add('live-list');
-  
+
       const datesDiv = document.createElement('div');
       datesDiv.classList.add('live-dates');
-  
+
       const renderDates = dates => {
         datesDiv.innerHTML = '';
-
-        if (dates.length === 0) {
+        if (!dates.length) {
           datesDiv.innerHTML = `<p class="no-dates">No shows listed</p>`;
           return;
         }
 
-        dates.forEach(liveDate => {
+        dates.forEach(d => {
           const entry = document.createElement('div');
           entry.classList.add('tour-entry');
-          entry.innerHTML = this.buildDate(
-            liveDate.date,
-            liveDate.time,
-            liveDate.city,
-            liveDate.country,
-            liveDate.venue,
-            liveDate.ticketUrl,
-            liveDate.soldOut
-          );
+          entry.innerHTML = this.buildDate(d);
           datesDiv.appendChild(entry);
         });
       };
-  
+
       renderDates(upcoming);
-  
-      const links = this.createPassedLinkDiv(
+
+      const links = this.createPastUpcomingLinks(
         () => renderDates(past),
         () => renderDates(upcoming)
       );
-  
+
       container.append(links, datesDiv);
       section.appendChild(container);
-      return section;
-  
     } catch (err) {
       console.error('Error loading live', err);
     }
   }
 
-  buildDate(date, time, city, country, venue, ticketUrl, soldOut) {
+  buildDate({date, time, city, country, venue, ticketUrl, soldOut}) {
     return `
       <div class="tour-info">
         <p class="tour-date">${date}</p>
@@ -272,7 +222,6 @@ class BandPage {
         <p class="tour-venue">${venue}</p>
       </div>
       <div class="tour-tickets">
-        <a href="https://www.bandsintown.com/a/15530173-drag-talk" class="rsvp" target="_blank">RSVP</a>
         <a href="${ticketUrl}" target="_blank" ${soldOut ? 'class="sold-out"' : ''}>
           ${soldOut ? 'Sold Out' : 'Tickets'}
         </a>
@@ -280,102 +229,62 @@ class BandPage {
     `;
   }
 
+  createPastUpcomingLinks(onPast, onUpcoming) {
+    const div = document.createElement('div');
+    div.classList.add('live-links');
+
+    const pastLink = document.createElement('a');
+    pastLink.textContent = 'PAST';
+    const upcomingLink = document.createElement('a');
+    upcomingLink.textContent = 'UPCOMING';
+
+    pastLink.addEventListener('click', e => { e.preventDefault(); pastLink.classList.add('active'); upcomingLink.classList.remove('active'); onPast(); });
+    upcomingLink.addEventListener('click', e => { e.preventDefault(); upcomingLink.classList.add('active'); pastLink.classList.remove('active'); onUpcoming(); });
+
+    div.append(pastLink, upcomingLink);
+    return div;
+  }
+
   async loadSignUp(section) {
     try {
       const countrySelect = section.querySelector('#country');
-      const response = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-      if(!response.ok) throw new Error('Failed to load countries');
+      const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
+      const countries = await res.json();
+      countries.sort((a,b) => a.name.common.localeCompare(b.name.common));
 
-      const countries = await response.json();
-      countries.sort((a, b) => a.name.common.localeCompare(b.name.common));
-
-      countries.forEach(country => {
+      countries.forEach(c => {
         const option = document.createElement('option');
-        option.value = country.cca2;
-        option.textContent = country.name.common;
-        countrySelect.appendChild(option)
-      })
+        option.value = c.cca2;
+        option.textContent = c.name.common;
+        countrySelect.appendChild(option);
+      });
 
       const form = section.querySelector('.signup-form');
       form.addEventListener('submit', e => this.handleSubmitForm(e));
-
-      return section
-    }catch(error) {
-      console.error(error)
+    } catch(err) {
+      console.error('Error loading signup', err);
     }
   }
 
-  async fetchSectionNode(url) {
-    const response = await fetch(path(url));
-    if (!response.ok) throw new Error(`Failed to load ${url}`);
-  
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    return doc.querySelector('section');
-  }
-
-  async loadHome() {
-    try {
-      const homeSection = await this.fetchSectionNode('sections/home-section.html');
-  
-      const liveSection = await this.fetchSectionNode('sections/live-section.html');
-      const musicSection = await this.fetchSectionNode('sections/music-section.html');
-      const videosSection = await this.fetchSectionNode('sections/videos-section.html');
-      const signUpSection = await this.fetchSectionNode('sections/sign-up-section.html');
-  
-      await this.loadLive(liveSection);
-      await this.loadMusic(musicSection);
-      await this.loadVideos(videosSection);
-      await this.loadSignUp(signUpSection);
-  
-      homeSection.append(
-        liveSection,
-        musicSection,
-        videosSection,
-        signUpSection
-      );
-  
-      this.mainContent.innerHTML = '';
-      this.mainContent.appendChild(homeSection);
-  
-    } catch (error) {
-      console.error('Error loading home', error);
-    }
-  }
-  
-  handleSubmitForm(event) {
-    event.preventDefault();
-  
-    const form = event.currentTarget;
-  
+  handleSubmitForm(e) {
+    e.preventDefault();
+    const form = e.currentTarget;
     const email = form.querySelector('#email').value.trim();
-    const firstName = form.querySelector('#first_name').value.trim();
-    const lastName = form.querySelector('#last_name').value.trim();
+    const first = form.querySelector('#first_name').value.trim();
+    const last = form.querySelector('#last_name').value.trim();
     const country = form.querySelector('#country').value;
-    const marketingConsent = form.querySelector('#marketing_email').checked;
-  
-    if (!email || !marketingConsent) return;
-  
+    const marketing = form.querySelector('#marketing_email').checked;
+
+    if (!email || !marketing) return;
+
     window._learnq = window._learnq || [];
-  
-    _learnq.push(['identify', {
-      $email: email,
-      $first_name: firstName,
-      $last_name: lastName,
-      Country: country,
-      Marketing_Email: marketingConsent,
-      Source: 'Website Signup'
-    }]);
-  
-    _learnq.push(['subscribe', {
-      list: 'LIST_ID',
-      email: email
-    }]);
-  
+    _learnq.push(['identify', { $email: email, $first_name: first, $last_name: last, Country: country, Marketing_Email: marketing, Source: 'Website Signup' }]);
+    _learnq.push(['subscribe', { list: 'LIST_ID', email }]);
+
     form.reset();
     this.showSignupSuccess(form);
   }
-  
+
   showSignupSuccess(form) {
     let msg = form.querySelector('.signup-success');
     if (!msg) {
@@ -385,13 +294,6 @@ class BandPage {
       form.appendChild(msg);
     }
   }
-  
-  resetNav(activeLink) {
-    this.navBar.forEach(link => link.classList.remove('active'));
-    if (activeLink) activeLink.classList.add('active');
-  }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new BandPage();
-});
+document.addEventListener('DOMContentLoaded', () => new BandPage());
