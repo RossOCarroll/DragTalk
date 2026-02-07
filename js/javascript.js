@@ -24,22 +24,23 @@ class BandPage {
   navBarDelegation(navBar) {
     navBar.forEach(link => {
       link.addEventListener('click', event => {
-        if (event.target.textContent !== 'STORE') {
-          event.preventDefault();
+        const section = link.dataset.section;
   
-          this.resetNav(link);
-          link.classList.add('active');
+        if (!section) return; // STORE link, skip
+        event.preventDefault();
   
-          if (link.textContent === 'HOME') {
-            this.loadHome();  // special case
-          } else {
-            const url = link.getAttribute('href');
-            this.loadSection(url);
-          }
+        this.resetNav(link);
+        link.classList.add('active');
+  
+        if (section === 'home') {
+          this.loadHome();
+        } else {
+          this.loadSection(`sections/${section}-section.html`);
         }
       });
     });
   }
+  
 
   normalizeDate(dateStr) {
     const date = new Date(dateStr);
