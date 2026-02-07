@@ -26,14 +26,19 @@ class BandPage {
       link.addEventListener('click', event => {
         if (event.target.textContent !== 'STORE') {
           event.preventDefault();
-
+  
+          this.resetNav(link);
           link.classList.add('active');
-          const url = link.getAttribute('href');
-          this.loadSection(url);
-          this.resetNav(link);          
+  
+          if (link.textContent === 'HOME') {
+            this.loadHome();  // special case
+          } else {
+            const url = link.getAttribute('href');
+            this.loadSection(url);
+          }
         }
-      })
-    })
+      });
+    });
   }
 
   normalizeDate(dateStr) {
