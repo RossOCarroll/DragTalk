@@ -279,7 +279,7 @@ class BandPage {
 
     window._learnq = window._learnq || [];
     _learnq.push(['identify', { $email: email, $first_name: first, $last_name: last, Country: country, Marketing_Email: marketing, Source: 'Website Signup' }]);
-    _learnq.push(['subscribe', { list: 'LIST_ID', email }]);
+    _learnq.push(['subscribe', { list: 'V4SEtE', email }]);
 
     form.reset();
     this.showSignupSuccess(form);
