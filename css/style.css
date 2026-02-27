@@ -793,7 +793,7 @@ footer.social svg:hover {
   .albums {
     flex-direction: column;
     align-items: center;
-  }
+  }up-form
 
   .album .streaming a img {
     width: 24px;    /* smaller icons on mobile */
@@ -813,10 +813,23 @@ footer.social svg:hover {
     gap: 1rem;
   }
 
-  .signup-form {
-    grid-template-columns: 1fr;
+  .sign-up-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* centers everything horizontally */
+    width: 100%;
+    margin: 0 auto;
   }
 
+  .signup-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* desktop default */
+    gap: 1.5rem;
+  
+    width: 100%;
+    max-width: 400px;   /* controls form width */
+    margin: 0 auto;     /* keeps it centered */
+  }
   footer.social {
     position: static;
     justify-content: center;
