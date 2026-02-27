@@ -8,13 +8,37 @@ class BandPage {
     this.mainContent = document.getElementById('main-content');
     this.navBarDelegation();
     this.loadHome();
+
+    this.mobileButton = document.querySelector('.nav-toggle');
+    this.navLinks = document.querySelector('nav ul.nav-links');
+    this.hamburgerSetUp();
+  }
+
+  hamburgerSetUp() {
+    if (!this.mobileButton || this.navLinks) return;
+
+    this.mobileButton.addEventListener('click', () => {
+      this.navLinks.classList('show');
+    })
+
+    document.addEventListener('click', (e) => {
+      if (!this.mobileButton.contains(e.target) && !this.navLinks.contains(e.target)) {
+        this.navLinks.classList.remove('show');
+      }
+    });
+
+    this.navLinks.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        this.navLinks.classList.remove('show');
+      });
+    });
   }
 
   // Handle navbar clicks
   navBarDelegation() {
     this.navBar.forEach(link => {
       const section = link.dataset.section;
-      if (!section) return; // external STORE link
+      if (!section) return; // external links like STORE
 
       link.addEventListener('click', e => {
         e.preventDefault();
@@ -26,8 +50,18 @@ class BandPage {
         } else {
           this.loadSection(`${BASE_PATH}sections/${section}-section.html`);
         }
+
+        // Close mobile menu after navigation
+        if (this.navLinks.classList.contains('show')) {
+          this.navLinks.classList.remove('show');
+        }
       });
     });
+  }
+
+  resetNav(activeLink) {
+    this.navBar.forEach(link => link.classList.remove('active'));
+    if (activeLink) activeLink.classList.add('active');
   }
 
   resetNav(activeLink) {
@@ -266,23 +300,71 @@ class BandPage {
     }
   }
 
-  handleSubmitForm(e) {
-    e.preventDefault();
-    const form = e.currentTarget;
+  handleSubmitForm(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+  
     const email = form.querySelector('#email').value.trim();
-    const first = form.querySelector('#first_name').value.trim();
-    const last = form.querySelector('#last_name').value.trim();
+    const firstName = form.querySelector('#first_name').value.trim();
+    const lastName = form.querySelector('#last_name').value.trim();
     const country = form.querySelector('#country').value;
-    const marketing = form.querySelector('#marketing_email').checked;
-
-    if (!email || !marketing) return;
-
+    const marketingConsent = form.querySelector('#marketing_email').checked;
+  
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+    form.querySelectorAll('.error-msg').forEach(el => el.remove());
+  
+    let valid = true;
+  
+    if (!email) {
+      this.showError(form.querySelector('#email'), 'Email is required');
+      valid = false;
+    } else if (!emailRegex.test(email)) {
+      this.showError(form.querySelector('#email'), 'Invalid email');
+      valid = false;
+    }
+  
+    if (!firstName) {
+      this.showError(form.querySelector('#first_name'), 'First name required');
+      valid = false;
+    }
+    if (!lastName) {
+      this.showError(form.querySelector('#last_name'), 'Last name required');
+      valid = false;
+    }
+  
+    if (!country) {
+      this.showError(form.querySelector('#country'), 'Country required');
+      valid = false;
+    }
+  
+    if (!marketingConsent) {
+      this.showError(form.querySelector('#marketing_email'), 'You must agree to receive emails');
+      valid = false;
+    }
+  
+    if (!valid) return;
+  
     window._learnq = window._learnq || [];
-    _learnq.push(['identify', { $email: email, $first_name: first, $last_name: last, Country: country, Marketing_Email: marketing, Source: 'Website Signup' }]);
+    _learnq.push(['identify', {
+      $email: email,
+      $first_name: firstName,
+      $last_name: lastName,
+      Country: country,
+      Marketing_Email: marketingConsent,
+      Source: 'Website Signup'
+    }]);
     _learnq.push(['subscribe', { list: 'V4SEtE', email }]);
-
+  
     form.reset();
     this.showSignupSuccess(form);
+  }
+  
+  showError(inputEl, message) {
+    const error = document.createElement('p');
+    error.className = 'error-msg';
+    error.textContent = message;
+    inputEl.parentNode.appendChild(error);
   }
 
   showSignupSuccess(form) {
