@@ -15,10 +15,10 @@ class BandPage {
   }
 
   hamburgerSetUp() {
-    if (!this.mobileButton || this.navLinks) return;
+    if (!this.mobileButton || !this.navLinks) return;
 
     this.mobileButton.addEventListener('click', () => {
-      this.navLinks.classList('show');
+      this.navLinks.classList.add('show');
     })
 
     document.addEventListener('click', (e) => {
@@ -57,11 +57,6 @@ class BandPage {
         }
       });
     });
-  }
-
-  resetNav(activeLink) {
-    this.navBar.forEach(link => link.classList.remove('active'));
-    if (activeLink) activeLink.classList.add('active');
   }
 
   resetNav(activeLink) {
