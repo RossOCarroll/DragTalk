@@ -16,20 +16,24 @@ class BandPage {
 
   hamburgerSetUp() {
     if (!this.mobileButton || !this.navLinks) return;
-
-    this.mobileButton.addEventListener('click', () => {
-      this.navLinks.classList.add('show');
-    })
-
+  
+    this.mobileButton.addEventListener('click', (e) => {
+      e.stopPropagation(); 
+      this.navLinks.classList.toggle('show');
+      this.mobileButton.classList.toggle('active'); 
+    });
+  
     document.addEventListener('click', (e) => {
       if (!this.mobileButton.contains(e.target) && !this.navLinks.contains(e.target)) {
         this.navLinks.classList.remove('show');
+        this.mobileButton.classList.remove('active');
       }
     });
-
+  
     this.navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         this.navLinks.classList.remove('show');
+        this.mobileButton.classList.remove('active');
       });
     });
   }
