@@ -484,23 +484,71 @@ footer.social svg:hover {
 
 /* Extra Mobile */
 @media (max-width: 600px) {
+
   .section-title {
     font-size: 2rem;
   }
 
+  /* ---------- Sign Up Section ---------- */
+
+  .sign-up-form {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .signup-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;   /* keeps name + last name side-by-side */
+    gap: 1rem;
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .signup-form .full {
+    grid-column: 1 / -1;   /* full width fields */
+  }
+
+  .form-field input,
+  .form-field select {
+    width: 100%;
+  }
+
+  .marketing {
+    font-size: 0.7rem;
+    text-align: left;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: center;
+  }
+
+  .form-actions button {
+    width: 180px;
+  }
+
+  /* ---------- Tour ---------- */
+
   .tour-tickets a {
     width: 125px;
-    padding: 0.2rem .5rem;
+    padding: 0.2rem 0.5rem;
   }
+
+  .live-list {
+    padding: 0;
+  }
+
+  /* ---------- Music ---------- */
 
   .albums {
     grid-template-columns: repeat(2, 1fr);
     gap: 0.75rem;
   }
 
-  .live-list {
-    padding: 0 0px;
-  }
   .album {
     max-width: 200px;
   }
@@ -510,11 +558,4 @@ footer.social svg:hover {
     height: 20px;
   }
 
-  .signup-form {
-    padding: 0 0;
-  }
-
-  .marketing {
-    font-size: 0.6rem;
-  }
 }
