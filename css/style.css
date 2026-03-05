@@ -409,7 +409,7 @@ footer.social svg:hover {
 @media (max-width: 768px) {
   .nav-toggle {
     position: relative;       /* relative so spans position inside */
-    display: flex;            /* center content inside */
+    display: flex !important;            /* center content inside */
     flex-direction: column;   
     justify-content: space-between;
     width: 24px;              /* container width */
@@ -425,7 +425,7 @@ footer.social svg:hover {
     display: block;
     width: 100%;
     height: 2px;
-    background-color: red;
+    background-color: var(--text-color);
     border-radius: 2px;
     transition: all 0.3s ease-in-out;
     transform-origin: center;
