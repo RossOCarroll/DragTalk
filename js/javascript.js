@@ -11,7 +11,17 @@ class BandPage {
 
     this.mobileButton = document.querySelector('.nav-toggle');
     this.navLinks = document.querySelector('nav ul.nav-links');
+    this.modal = document.getElementById('modal');
+    this.closeBtn = document.querySelector('.modal-close');
     this.hamburgerSetUp();
+
+    window.addEventListener('load', () => {
+      this.modal.classList.remove('hidden');
+    })
+
+    this.closeBtn.addEventListener('click', () => {
+      this.modal.classList.add('hidden');
+    })
   }
 
   hamburgerSetUp() {
