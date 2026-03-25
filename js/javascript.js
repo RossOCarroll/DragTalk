@@ -131,7 +131,7 @@ class BandPage {
   // ---------------- Dynamic Content Loaders ----------------
   async loadVideos(section) {
     try {
-      const res = await fetch(`${BASE_PATH}data/videos.json`);
+      const res = await fetch(`http://localhost:3000/api/videos`);
       const videos = await res.json();
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
@@ -166,7 +166,7 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const res = await fetch(`${BASE_PATH}data/music.json`);
+      const res = await fetch(`http://localhost:3000/api/music`);
       const albums = await res.json();
       const albumsDiv = document.createElement('div');
       albumsDiv.classList.add('albums');
@@ -212,7 +212,7 @@ class BandPage {
 
   async loadLive(section) {
     try {
-      const res = await fetch(`${BASE_PATH}data/live.json`);
+      const res = await fetch(`http://localhost:3000/api/live`);
       const liveDates = await res.json();
 
       const today = new Date();

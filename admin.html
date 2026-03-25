@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - DragTalk</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/admin" class="active">Admin</a>
+    </nav>
+  </header>
+
+  <main id="admin-content">
+    <h1>Admin Panel</h1>
+    <section id="live-admin">
+      <h2>Manage Live Shows</h2>
+      <div id="live-list">
+        <table id="live-table">
+
+        </table>
+      </div>
+      <button id="add-live-btn" class="button">Add New Show</button>
+    </section>
+
+    <section id="videos-admin">
+      <h2>Manage Videos</h2>
+      <div id="videos-list">
+        <table id="video-table">
+
+        </table>
+      </div>
+      <button id="add-video-btn" class="button">Add New Video</button>
+    </section>
+
+    <section id="music-admin">
+      <h2>Manage Music</h2>
+      <div id="music-list">
+        <table id="music-table">
+          
+        </table>
+      </div>
+      <button id="add-music-btn" class="button">Add New Album</button>
+    </section>
+  </main>
+
+  <!-- Modal Layer -->
+<div id="modal-layer" class="hidden"></div>
+<div id="live-modal" class="modal hidden">
+  <h3>Add / Edit Show</h3>
+
+  <form id="live-form">
+
+    <div class="field">
+      <label for="live-title">Title</label>
+      <input type="text" id="live-title" name="title">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="live-date">Date</label>
+        <input type="date" id="live-date" name="date">
+      </div>
+
+      <div class="field">
+        <label for="live-time">Time</label>
+        <input type="time" id="live-time" name="time">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="live-city">City</label>
+        <input type="text" id="live-city" name="city">
+      </div>
+
+      <div class="field">
+        <label for="live-country">Country</label>
+        <input type="text" id="live-country" name="country">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="live-venue">Venue</label>
+      <input type="text" id="live-venue" name="venue">
+    </div>
+
+    <div class="field">
+      <label for="live-ticket">Ticket Link</label>
+      <input type="text" id="live-ticket" name="ticketLink">
+    </div>
+
+    <div class="checkbox">
+      <input type="checkbox" id="live-soldout" name="soldOut">
+      <label for="live-soldout">Sold Out</label>
+    </div>
+
+    <div class="field">
+      <label for="live-notes">Notes</label>
+      <input type="text" id="live-notes" name="notes">
+    </div>
+
+    <div class="modal-buttons">
+      <button type="submit" class="button">Save</button>
+      <button type="button" class="button cancel-btn">Cancel</button>
+    </div>
+
+  </form>
+</div>
+
+<div id="video-modal" class="modal hidden">
+  <h3>Add / Edit Video</h3>
+
+  <form id="video-form">
+
+    <div class="field">
+      <label for="video-title">Title</label>
+      <input type="text" id="video-title" name="title" required>
+    </div>
+
+    <div class="field">
+      <label for="video-url">Embed URL</label>
+      <input 
+        type="text" 
+        id="video-url" 
+        name="url" 
+        placeholder="https://youtube.com/embed/..." 
+        required
+      >
+    </div>
+
+    <div class="modal-buttons">
+      <button type="submit" class="button">Save</button>
+      <button type="button" class="button cancel-btn">Cancel</button>
+    </div>
+
+  </form>
+</div>
+
+<div id="music-modal" class="modal hidden">
+  <h3>Add / Edit Album</h3>
+
+  <form id="music-form">
+
+    <div class="field">
+      <label for="music-title">Title</label>
+      <input type="text" id="music-title" name="title" required>
+    </div>
+
+    <div class="field">
+      <label for="music-cover">Cover Image URL</label>
+      <input type="text" id="music-cover" name="cover" required>
+    </div>
+
+    <div class="field">
+      <label for="music-year">Release Year</label>
+      <input type="number" id="music-year" name="releaseYear" required>
+    </div>
+
+    <div class="field">
+      <label for="music-spotify">Spotify URL</label>
+      <input type="text" id="music-spotify" name="spotify">
+    </div>
+
+    <div class="field">
+      <label for="music-bandcamp">Bandcamp URL</label>
+      <input type="text" id="music-bandcamp" name="bandcamp">
+    </div>
+
+    <div class="field">
+      <label for="music-apple">Apple Music URL</label>
+      <input type="text" id="music-apple" name="apple">
+    </div>
+
+    <div class="field">
+      <label for="music-youtube">YouTube URL</label>
+      <input type="text" id="music-youtube" name="youtube">
+    </div>
+
+    <div class="modal-buttons">
+      <button type="submit" class="button">Save</button>
+      <button type="button" class="button cancel-btn">Cancel</button>
+    </div>
+
+  </form>
+</div>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
