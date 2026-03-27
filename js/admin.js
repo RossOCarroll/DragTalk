@@ -10,12 +10,13 @@ class Admin {
     this.liveTable = document.getElementById('live-table');
     this.musicSection = document.getElementById('music-admin');
     this.musicTable = document.getElementById('music-table');
-    this.videosSection = document.getElementById('live-admin');
+    this.videosSection = document.getElementById('videos-admin');
     this.videoTable = document.getElementById('video-table');
     this.addShowBtn = document.getElementById('add-live-btn');
     this.addVideoBtn = document.getElementById('add-video-btn');
     this.addMusicBtn = document.getElementById('add-music-btn');
     this.cancelBtns = document.querySelectorAll('.cancel-btn');
+    this.liveForm = document.getElementById('live-form');
     
     this.cancelBtns.forEach(btn => {
       btn.addEventListener('click', () => this.closeModal());
@@ -26,11 +27,13 @@ class Admin {
     this.videoModal = document.getElementById('video-modal');
     this.musicModal = document.getElementById('music-modal');
   
-    this.addShowBtn.addEventListener('click', () => this.handleAddShow());
+    this.addShowBtn.addEventListener('click', () => this.openModal(this.liveModal));
     this.modalLayer.addEventListener('click', () => this.closeModal());
-    this.addVideoBtn.addEventListener('click', () => this.handleAddVideo());
-    this.addMusicBtn.addEventListener('click', () => this.handleAddMusic());
+    this.addVideoBtn.addEventListener('click', () => this.openModal(this.videoModal));
+    this.addMusicBtn.addEventListener('click', () => this.openModal(this.musicModal));
+    this.liveForm.addEventListener('submit', (event) => this.handleAddShow(event))
 
+    console.log(this.liveModal, this.videoModal, this.musicModal);
     [this.liveModal, this.videoModal, this.musicModal].forEach(modal => {
       modal.addEventListener('click', e => e.stopPropagation());
     });
@@ -194,16 +197,59 @@ class Admin {
     });
   }
 
-  handleAddShow() {
-    this.openModal(this.liveModal);
+  async addShow(showData) {
+    try {
+      let response = await fetch(`${LOCAL_URL_API}live`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(showData)
+      });
+
+      if (!response.ok) {
+        throw new Error(`There was an HTTP error:${response.status}`)
+      }
+
+      return response.json();
+
+    } catch(error) {
+      console.error(error);
+    }
+  }
+
+  async handleAddShow(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this.liveForm);
+    const show = Object.fromEntries(formData.entries());
+    show.soldOut = formData.has('soldOut');
+
+    if (
+      !show.title ||
+      !show.date ||
+      !show.time ||
+      !show.city ||
+      !show.country ||
+      !show.venue
+    ) {
+      alert('All fields except notes and ticket url are required');
+      return;
+    }
+
+    let res = await this.addShow(show);
+    console.log(res);
+    this.liveForm.reset();
+    this.closeModal();
+    this.renderLiveShow();
   }
 
   handleAddVideo() {
-    this.openModal(this.videoModal);
+
   }
 
   handleAddMusic() {
-    this.openModal(this.musicModal);
+
   }
 }
 
