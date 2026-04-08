@@ -7,8 +7,6 @@ const supabaseClient = createClient(
 
 const BASE_PATH = './';
 
-
-
 window.addEventListener('unhandledrejection', event => {
   console.warn('Unhandled promise rejection:', event.reason);
 });
@@ -59,11 +57,10 @@ class BandPage {
     });
   }
 
-  // Handle navbar clicks
   navBarDelegation() {
     this.navBar.forEach(link => {
       const section = link.dataset.section;
-      if (!section) return; // external links like STORE
+      if (!section) return; 
 
       link.addEventListener('click', e => {
         e.preventDefault();
@@ -102,7 +99,6 @@ class BandPage {
     try {
       const section = await this.fetchSectionNode(url);
 
-      // Special section loaders
       if (url.includes('videos-section.html')) await this.loadVideos(section);
       if (url.includes('music-section.html')) await this.loadMusic(section);
       if (url.includes('live-section.html')) await this.loadLive(section);
@@ -123,7 +119,6 @@ class BandPage {
       for (const sec of sections) {
         const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
 
-        // load any dynamic content
         if (sec === 'live') await this.loadLive(node);
         if (sec === 'music') await this.loadMusic(node);
         if (sec === 'videos') await this.loadVideos(node);
