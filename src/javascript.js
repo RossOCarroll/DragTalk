@@ -1,9 +1,24 @@
+// import { createClient } from '@supabase/supabase-js';
+
+// const supabaseClient = createClient(
+//   'https://xnqvjcjmympojjtkhcmt.supabase.co',
+//   'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
+// );
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseClient = createClient(
-  'https://xnqvjcjmympojjtkhcmt.supabase.co',
-  'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
-);
+let supabaseClient;
+
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = createClient(
+      'https://xnqvjcjmympojjtkhcmt.supabase.co',
+      'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
+    );
+  }
+  return supabaseClient;
+}
+
+
 
 const BASE_PATH = import.meta.env.BASE_URL;
 console.log(BASE_PATH)
@@ -137,7 +152,7 @@ class BandPage {
 
   async loadVideos(section) {
     try {
-      const { data: videos, error } = await supabaseClient
+      const { data: videos, error } = await getSupabase()
         .from('videos')
         .select('*')
         .order('id', { ascending: true });
@@ -177,7 +192,7 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const { data: albums, error } = await supabaseClient
+      const { data: albums, error } = await getSupabase()
         .from('music')
         .select('*')
         .order('releaseYear', { ascending: false });
@@ -237,7 +252,7 @@ class BandPage {
 
   async loadLive(section) {
     try {
-      const { data: liveDates, error } = await supabaseClient
+      const { data: liveDates, error } = await getSupabase()
         .from('live')
         .select('*')
         .order('date', { ascending: true });

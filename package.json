@@ -1,7 +1,6 @@
 {
   "name": "drag-talk",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "homepage": "https://rossocarroll.github.io/DragTalk/",
   "scripts": {
@@ -30,5 +29,6 @@
   "devDependencies": {
     "gh-pages": "^6.3.0",
     "vite": "^8.0.7"
-  }
+  },
+  "description": ""
 }
