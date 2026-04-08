@@ -1,6 +1,17 @@
-const BASE_PATH = location.hostname === '127.0.0.1' || location.hostname === 'localhost'
-  ? './'        // local server
-  : '/DragTalk/'; // GitHub Pages project
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseClient = createClient(
+  'https://xnqvjcjmympojjtkhcmt.supabase.co',
+  'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
+);
+
+const BASE_PATH = './';
+
+
+
+window.addEventListener('unhandledrejection', event => {
+  console.warn('Unhandled promise rejection:', event.reason);
+});
 
 class BandPage {
   constructor() {
@@ -17,29 +28,29 @@ class BandPage {
 
     window.addEventListener('load', () => {
       this.modal.classList.remove('hidden');
-    })
+    });
 
     this.closeBtn.addEventListener('click', () => {
       this.modal.classList.add('hidden');
-    })
+    });
   }
 
   hamburgerSetUp() {
     if (!this.mobileButton || !this.navLinks) return;
-  
+
     this.mobileButton.addEventListener('click', (e) => {
-      e.stopPropagation(); 
+      e.stopPropagation();
       this.navLinks.classList.toggle('show');
-      this.mobileButton.classList.toggle('active'); 
+      this.mobileButton.classList.toggle('active');
     });
-  
+
     document.addEventListener('click', (e) => {
       if (!this.mobileButton.contains(e.target) && !this.navLinks.contains(e.target)) {
         this.navLinks.classList.remove('show');
         this.mobileButton.classList.remove('active');
       }
     });
-  
+
     this.navLinks.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         this.navLinks.classList.remove('show');
@@ -128,11 +139,15 @@ class BandPage {
     }
   }
 
-  // ---------------- Dynamic Content Loaders ----------------
   async loadVideos(section) {
     try {
-      const res = await fetch(`http://localhost:3000/api/videos`);
-      const videos = await res.json();
+      const { data: videos, error } = await supabaseClient
+        .from('videos')
+        .select('*')
+        .order('id', { ascending: true });
+
+      if (error) throw error;
+
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
 
@@ -166,8 +181,13 @@ class BandPage {
 
   async loadMusic(section) {
     try {
-      const res = await fetch(`http://localhost:3000/api/music`);
-      const albums = await res.json();
+      const { data: albums, error } = await supabaseClient
+        .from('music')
+        .select('*')
+        .order('releaseYear', { ascending: false });
+
+      if (error) throw error;
+
       const albumsDiv = document.createElement('div');
       albumsDiv.classList.add('albums');
 
@@ -187,14 +207,22 @@ class BandPage {
         const streamingDiv = document.createElement('div');
         streamingDiv.classList.add('streaming');
 
-        album.streaming.forEach(s => {
+        const platforms = [
+          { url: album.spotify, icon: 'assets/img/svg/spotify.svg' },
+          { url: album.bandcamp, icon: 'assets/img/svg/bandcamp.svg' },
+          { url: album.appleMusic, icon: 'assets/img/svg/apple.svg' },
+          { url: album.youtube, icon: 'assets/img/svg/youtube.svg' }
+        ];
+
+        platforms.forEach(p => {
+          if (!p.url) return;
+
           const link = document.createElement('a');
-          link.href = s.url;
+          link.href = p.url;
           link.target = '_blank';
-          link.setAttribute('aria-label', s.platform);
 
           const img = document.createElement('img');
-          img.src = s.icon;
+          img.src = p.icon;
 
           link.appendChild(img);
           streamingDiv.appendChild(link);
@@ -205,6 +233,7 @@ class BandPage {
       });
 
       section.appendChild(albumsDiv);
+
     } catch (err) {
       console.error('Error loading music', err);
     }
@@ -212,8 +241,12 @@ class BandPage {
 
   async loadLive(section) {
     try {
-      const res = await fetch(`http://localhost:3000/api/live`);
-      const liveDates = await res.json();
+      const { data: liveDates, error } = await supabaseClient
+        .from('live')
+        .select('*')
+        .order('date', { ascending: true });
+
+      if (error) throw error;
 
       const today = new Date();
       today.setHours(0,0,0,0);
@@ -251,6 +284,7 @@ class BandPage {
 
       container.append(links, datesDiv);
       section.appendChild(container);
+
     } catch (err) {
       console.error('Error loading live', err);
     }
@@ -281,8 +315,18 @@ class BandPage {
     const upcomingLink = document.createElement('a');
     upcomingLink.textContent = 'UPCOMING';
 
-    pastLink.addEventListener('click', e => { e.preventDefault(); pastLink.classList.add('active'); upcomingLink.classList.remove('active'); onPast(); });
-    upcomingLink.addEventListener('click', e => { e.preventDefault(); upcomingLink.classList.add('active'); pastLink.classList.remove('active'); onUpcoming(); });
+    pastLink.addEventListener('click', e => {
+      e.preventDefault();
+      pastLink.classList.add('active');
+      upcomingLink.classList.remove('active');
+      onPast();
+    });
+    upcomingLink.addEventListener('click', e => {
+      e.preventDefault();
+      upcomingLink.classList.add('active');
+      pastLink.classList.remove('active');
+      onUpcoming();
+    });
 
     div.append(pastLink, upcomingLink);
     return div;
@@ -312,19 +356,19 @@ class BandPage {
   handleSubmitForm(event) {
     event.preventDefault();
     const form = event.currentTarget;
-  
+
     const email = form.querySelector('#email').value.trim();
     const firstName = form.querySelector('#first_name').value.trim();
     const lastName = form.querySelector('#last_name').value.trim();
     const country = form.querySelector('#country').value;
     const marketingConsent = form.querySelector('#marketing_email').checked;
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
     form.querySelectorAll('.error-msg').forEach(el => el.remove());
-  
+
     let valid = true;
-  
+
     if (!email) {
       this.showError(form.querySelector('#email'), 'Email is required');
       valid = false;
@@ -332,7 +376,7 @@ class BandPage {
       this.showError(form.querySelector('#email'), 'Invalid email');
       valid = false;
     }
-  
+
     if (!firstName) {
       this.showError(form.querySelector('#first_name'), 'First name required');
       valid = false;
@@ -341,19 +385,19 @@ class BandPage {
       this.showError(form.querySelector('#last_name'), 'Last name required');
       valid = false;
     }
-  
+
     if (!country) {
       this.showError(form.querySelector('#country'), 'Country required');
       valid = false;
     }
-  
+
     if (!marketingConsent) {
       this.showError(form.querySelector('#marketing_email'), 'You must agree to receive emails');
       valid = false;
     }
-  
+
     if (!valid) return;
-  
+
     window._learnq = window._learnq || [];
     _learnq.push(['identify', {
       $email: email,
@@ -364,11 +408,11 @@ class BandPage {
       Source: 'Website Signup'
     }]);
     _learnq.push(['subscribe', { list: 'V4SEtE', email }]);
-  
+
     form.reset();
     this.showSignupSuccess(form);
   }
-  
+
   showError(inputEl, message) {
     const error = document.createElement('p');
     error.className = 'error-msg';
@@ -387,4 +431,6 @@ class BandPage {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => new BandPage());
+document.addEventListener('DOMContentLoaded', () =>  {
+  new BandPage()
+});
