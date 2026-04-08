@@ -5,7 +5,7 @@ const supabaseClient = createClient(
   'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
 );
 
-const BASE_PATH = './';
+const BASE_PATH = import.meta.env.BASE_URL;
 
 window.addEventListener('unhandledrejection', event => {
   console.warn('Unhandled promise rejection:', event.reason);
