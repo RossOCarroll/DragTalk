@@ -1,5 +1,9 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/drag-talk/'
+  base: '/DragTalk/', // GitHub Pages repo name
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+  },
 });
