@@ -1,9 +1,3 @@
-// import { createClient } from '@supabase/supabase-js';
-
-// const supabaseClient = createClient(
-//   'https://xnqvjcjmympojjtkhcmt.supabase.co',
-//   'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
-// );
 import { createClient } from '@supabase/supabase-js';
 
 let supabaseClient;
@@ -18,10 +12,7 @@ function getSupabase() {
   return supabaseClient;
 }
 
-
-
 const BASE_PATH = import.meta.env.BASE_URL;
-console.log(BASE_PATH)
 
 window.addEventListener('unhandledrejection', event => {
   console.warn('Unhandled promise rejection:', event.reason);
@@ -89,7 +80,6 @@ class BandPage {
           this.loadSection(`${BASE_PATH}sections/${section}-section.html`);
         }
 
-        // Close mobile menu after navigation
         if (this.navLinks.classList.contains('show')) {
           this.navLinks.classList.remove('show');
         }
@@ -131,18 +121,22 @@ class BandPage {
     try {
       const homeSection = await this.fetchSectionNode(`${BASE_PATH}sections/home-section.html`);
       const sections = ['live', 'music', 'videos', 'sign-up'];
-
+  
       for (const sec of sections) {
-        const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
-
-        if (sec === 'live') await this.loadLive(node);
-        if (sec === 'music') await this.loadMusic(node);
-        if (sec === 'videos') await this.loadVideos(node);
-        if (sec === 'sign-up') await this.loadSignUp(node);
-
-        homeSection.appendChild(node);
+        try {
+          const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
+  
+          if (sec === 'live') await this.loadLive(node);
+          if (sec === 'music') await this.loadMusic(node);
+          if (sec === 'videos') await this.loadVideos(node);
+          if (sec === 'sign-up') await this.loadSignUp(node);
+  
+          homeSection.appendChild(node);
+        } catch (secErr) {
+          console.error(`Failed loading section: ${sec}`, secErr);
+        }
       }
-
+  
       this.mainContent.innerHTML = '';
       this.mainContent.appendChild(homeSection);
     } catch (err) {
@@ -156,35 +150,88 @@ class BandPage {
         .from('videos')
         .select('*')
         .order('id', { ascending: true });
-
+  
       if (error) throw error;
-
+  
+      // Create lightbox
+      const lightbox = document.createElement('div');
+      lightbox.classList.add('video-lightbox', 'hidden');
+      lightbox.innerHTML = `
+        <div class="video-lightbox-content">
+          <button class="video-lightbox-close">✕</button>
+          <div class="video-lightbox-frame">
+            <iframe allowfullscreen
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin">
+            </iframe>
+          </div>
+          <p class="video-lightbox-title"></p>
+        </div>
+      `;
+      document.body.appendChild(lightbox);
+  
+      const lightboxIframe = lightbox.querySelector('iframe');
+      const lightboxTitle = lightbox.querySelector('.video-lightbox-title');
+      const closeBtn = lightbox.querySelector('.video-lightbox-close');
+  
+      const closeLightbox = () => {
+        lightbox.classList.add('hidden');
+        lightboxIframe.src = ''; // stops the video
+      };
+  
+      closeBtn.addEventListener('click', closeLightbox);
+      lightbox.addEventListener('click', e => {
+        if (e.target === lightbox) closeLightbox();
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') closeLightbox();
+      });
+  
+      // Build grid
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
-
+  
       videos.forEach(video => {
+        // Extract video ID
+        let videoId = null;
+        const embedMatch = video.src.match(/embed\/([^?]+)/);
+        const watchMatch = video.src.match(/[?&]v=([^&]+)/);
+        const shortMatch = video.src.match(/youtu\.be\/([^?]+)/);
+        if (embedMatch) videoId = embedMatch[1];
+        else if (watchMatch) videoId = watchMatch[1];
+        else if (shortMatch) videoId = shortMatch[1];
+  
         const videoEl = document.createElement('div');
         videoEl.classList.add('video');
-
-        const frame = document.createElement('div');
-        frame.classList.add('video-frame');
-
-        const iframe = document.createElement('iframe');
-        iframe.src = video.src;
-        iframe.allowFullscreen = true;
-        iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-
-        const title = document.createElement('h1');
+  
+        const thumb = document.createElement('div');
+        thumb.classList.add('video-thumb');
+        thumb.style.backgroundImage = `url(https://img.youtube.com/vi/${videoId}/hqdefault.jpg)`;
+        thumb.style.cursor = 'pointer';
+  
+        const playBtn = document.createElement('div');
+        playBtn.classList.add('play-btn');
+        playBtn.innerHTML = '▶';
+        thumb.appendChild(playBtn);
+  
+        thumb.addEventListener('click', () => {
+          lightboxIframe.src = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1`;
+          lightboxTitle.textContent = video.title;
+          lightbox.classList.remove('hidden');
+        });
+  
+        const title = document.createElement('p');
         title.classList.add('video-title');
         title.textContent = video.title;
-
-        frame.appendChild(iframe);
-        videoEl.appendChild(frame);
+  
+        videoEl.appendChild(thumb);
         videoEl.appendChild(title);
         grid.appendChild(videoEl);
       });
-
-      section.appendChild(grid);
+  
+      const wrapper = section.querySelector('.video-list') || section;
+      wrapper.appendChild(grid);
+  
     } catch (err) {
       console.error('Error loading videos', err);
     }
@@ -304,7 +351,7 @@ class BandPage {
   buildDate({date, time, city, country, venue, ticketUrl, soldOut}) {
     return `
       <div class="tour-info">
-        <p class="tour-date">${date}</p>
+        <p class="tour-date">${date.slice(0, 10)}</p>
         <p class="tour-time">${time}</p>
         <p class="tour-location">${city}, ${country}</p>
         <p class="tour-venue">${venue}</p>
@@ -443,5 +490,5 @@ class BandPage {
 }
 
 document.addEventListener('DOMContentLoaded', () =>  {
-  new BandPage()
+  new BandPage();
 });
