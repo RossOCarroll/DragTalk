@@ -1,14 +1,28 @@
-if(sessionStorage.getItem('isAdmin') !== 'true') {
-  window.location.href = 'login.html';
+import { createClient } from '@supabase/supabase-js';
+
+let supabaseClient;
+
+function getSupabase() {
+  if (!supabaseClient) {
+    supabaseClient = createClient(
+      'https://xnqvjcjmympojjtkhcmt.supabase.co',
+      'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
+    );
+  }
+  return supabaseClient;
 }
 
-const API_BASE =
-  location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000/api/'
-    : './data/'; // fallback for GitHub Pages
+const { data: { session } } = await getSupabase().auth.getSession();
+if (!session) {
+  window.location.href = '/login.html';
+}
+
+const BASE_PATH = import.meta.env.BASE_URL;
+
 
 class Admin {
   constructor() {
+    console.log('Admin instantiated');
     this.liveSection = document.getElementById('live-admin');
     this.liveTable = document.getElementById('live-table');
     this.musicSection = document.getElementById('music-admin');
@@ -62,12 +76,13 @@ class Admin {
 
   async fetchLiveShows() {
     try {
-      let response = await fetch(`${API_BASE}live`);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      };
+      const { data: live, error } = await getSupabase()
+        .from('live')
+        .select('*')
+        .order('date', { ascending: true });
 
-      return await response.json();
+      if (error) throw error;
+      return live;
 
     } catch(error) {
       console.error(error)
@@ -88,14 +103,14 @@ class Admin {
     shows.forEach(show => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${show.date}</td>
+        <td>${show.date.slice(0, 10)}</td>
         <td>${show.time}</td>
         <td>${show.city}</td>
         <td>${show.country}</td>
         <td>${show.venue}</td>
         <td><a href="${show.ticketUrl}" target="_blank">Link</a></td>
         <td>${show.soldOut}</td>
-        <td>${show.notes}</td>
+        <td>${show.notes || ''}</td>
         <td>
           <button class="button edit" data-id="${show.id}">Edit</button>
           <button class="button delete" data-id="${show.id}">Delete</button>
@@ -108,12 +123,13 @@ class Admin {
 
   async fetchVideos() {
     try {
-      let response = await fetch(`${API_BASE}videos`);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      };
+      const { data: videos, error } = await getSupabase()
+        .from('videos')
+        .select('*')
+        .order('id', { ascending: true });
 
-      return await response.json();
+      if (error) throw error;
+      return videos;
 
     } catch(error) {
       console.error(error)
@@ -147,12 +163,14 @@ class Admin {
 
   async fetchMusic() {
     try {
-      let response = await fetch(`${API_BASE}music`);
-      if (!response.ok) {
-        throw new Error(`HTTP error: ${response.status}`);
-      };
+      const { data: music, error } = await getSupabase()
+        .from('music')
+        .select('*')
+        .order('id', { ascending: true });
 
-      return await response.json();
+      if (error) throw error;
+      console.log(music)
+      return music;
 
     } catch(error) {
       console.error(error)
@@ -183,17 +201,26 @@ class Admin {
       const yearTd = document.createElement('td');
       yearTd.textContent = album.releaseYear;
       tr.appendChild(yearTd);
+
+      const platforms = [
+        { url: album.spotify, icon: 'assets/img/svg/spotify.svg', name: 'Spotify' },
+        { url: album.bandcamp, icon: 'assets/img/svg/bandcamp.svg', name: 'Bandcamp' },
+        { url: album.appleMusic, icon: 'assets/img/svg/apple.svg', name: 'Apple Music' },
+        { url: album.youtube, icon: 'assets/img/svg/youtube.svg', name: 'YouTube' }
+      ];
   
       const streamingTd = document.createElement('td');
-      album.streaming.forEach(link => {
-        streamingTd.innerHTML += `<a href="${link.url}" target="_blank" title="${link.platform}" style="margin-right:5px;"><img src="${link.icon}" alt="${link.platform}" style="width:24px;"></a>`;
-      });
+      const streamingHtml = platforms
+        .filter(p => p.url)
+        .map(p => `<a href="${p.url}" target="_blank" title="${p.name}" style="margin-right:5px;"><img src="${p.icon}" alt="${p.name}" style="width:24px; vertical-align:middle;"></a>`)
+        .join('');
+      streamingTd.innerHTML = streamingHtml;
       tr.appendChild(streamingTd);
   
       const actionsTd = document.createElement('td');
       actionsTd.innerHTML = `
-        <button class="edit-btn" data-id="${album.id}">Edit</button>
-        <button class="delete-btn" data-id="${album.id}">Delete</button>
+        <button class="button edit" data-id="${album.id}">Edit</button>
+        <button class="button delete" data-id="${album.id}">Delete</button>
       `;
       tr.appendChild(actionsTd);
   
@@ -201,44 +228,26 @@ class Admin {
     });
   }
 
-  async addShow(showData) {
+  async addShow(show) {
     try {
-      let response = await fetch(`${API_BASE}live`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(showData)
-      });
-
-      if (!response.ok) {
-        throw new Error(`There was an HTTP error:${response.status}`)
-      }
-
-      return response.json();
-
-    } catch(error) {
-      console.error(error);
+      const { error } = await getSupabase()
+        .from('live')
+        .insert(show);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding show', error);
     }
   }
 
   async updateShow(show, id) {
     try {
-      let response = await fetch(`${API_BASE}live/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-type' : 'application/json'
-        },
-        body: JSON.stringify(show)
-      })
-
-      if (!response.ok) {
-        throw new Error(`There was an HTTP error ${response.status}`)
-      }
-
-      return await response.json();
-    } catch(error) {
-      console.error(error);
+      const { error } = await getSupabase()
+        .from('live')
+        .update(show)
+        .eq('id', id);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating show', error);
     }
   }
 
@@ -263,7 +272,6 @@ class Admin {
     if (this.editingId) {
       await this.updateShow(show, this.editingId)
     } else {
-
       await this.addShow(show);
     }
 
@@ -337,10 +345,8 @@ class Admin {
   }
 }
 
-
-
-
-
-document.addEventListener('DOMContentLoaded', () => {
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => new Admin());
+} else {
   new Admin();
-})
+}

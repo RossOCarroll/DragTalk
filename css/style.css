@@ -316,6 +316,7 @@ footer.social svg:hover {
 
 .video-thumb:hover .play-btn {
   background: var(--accent-color);
+  opacity: 75%;
 }
 
 /* Lightbox */

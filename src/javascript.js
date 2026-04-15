@@ -153,7 +153,6 @@ class BandPage {
   
       if (error) throw error;
   
-      // Create lightbox
       const lightbox = document.createElement('div');
       lightbox.classList.add('video-lightbox', 'hidden');
       lightbox.innerHTML = `
@@ -176,7 +175,7 @@ class BandPage {
   
       const closeLightbox = () => {
         lightbox.classList.add('hidden');
-        lightboxIframe.src = ''; // stops the video
+        lightboxIframe.src = '';
       };
   
       closeBtn.addEventListener('click', closeLightbox);
@@ -187,12 +186,10 @@ class BandPage {
         if (e.key === 'Escape') closeLightbox();
       });
   
-      // Build grid
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
   
       videos.forEach(video => {
-        // Extract video ID
         let videoId = null;
         const embedMatch = video.src.match(/embed\/([^?]+)/);
         const watchMatch = video.src.match(/[?&]v=([^&]+)/);
