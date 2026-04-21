@@ -34,6 +34,9 @@ class Admin {
     this.addMusicBtn = document.getElementById('add-music-btn');
     this.cancelBtns = document.querySelectorAll('.cancel-btn');
     this.liveForm = document.getElementById('live-form');
+    this.videoForm = document.getElementById('video-form');
+    this.musicForm = document.getElementById('music-form');
+
     this.editingId;
 
     this.cancelBtns.forEach(btn => {
@@ -51,6 +54,10 @@ class Admin {
     this.addMusicBtn.addEventListener('click', () => this.openModal(this.musicModal));
     this.liveForm.addEventListener('submit', (event) => this.handleAddShow(event));
     this.liveTable.addEventListener('click', (event) => this.handleLiveTableClick(event));
+    this.videoTable.addEventListener('click', (event) => this.handleVideoTableClick(event));
+    this.musicTable.addEventListener('click', (event) => this.handleMusicTableClick(event));
+    this.videoForm.addEventListener('submit', (event) => this.handleAddVideo(event));
+    this.musicForm.addEventListener('submit', (event) => this.handleAddMusic(event));
 
     [this.liveModal, this.videoModal, this.musicModal].forEach(modal => {
       modal.addEventListener('click', e => e.stopPropagation());
@@ -72,6 +79,10 @@ class Admin {
     document.querySelectorAll('.modal').forEach(modal => {
       modal.classList.add('hidden');
     })
+    this.editingId = null;
+    this.liveForm.reset();
+    this.musicForm.reset();
+    this.videoForm.reset();
   }
 
   async fetchLiveShows() {
@@ -253,28 +264,32 @@ class Admin {
 
   async handleAddShow(event) {
     event.preventDefault();
-
+  
     const formData = new FormData(this.liveForm);
     const show = Object.fromEntries(formData.entries());
-    show.soldOut = formData.has('soldOut');
-
-    if (
-      !show.date ||
-      !show.time ||
-      !show.city ||
-      !show.country ||
-      !show.venue
-    ) {
+    
+    const payload = {
+      date: show.date,
+      time: show.time,
+      city: show.city,
+      country: show.country,
+      venue: show.venue,
+      ticketUrl: show.ticketUrl,
+      soldOut: formData.has('soldOut'),
+      notes: show.notes
+    };
+  
+    if (!payload.date || !payload.time || !payload.city || !payload.country || !payload.venue) {
       alert('All fields except notes and ticket url are required');
       return;
     }
-
+  
     if (this.editingId) {
-      await this.updateShow(show, this.editingId)
+      await this.updateShow(payload, this.editingId);
     } else {
-      await this.addShow(show);
+      await this.addShow(payload);
     }
-
+  
     this.editingId = null;
     this.liveForm.reset();
     this.closeModal();
@@ -283,11 +298,11 @@ class Admin {
 
   async handleEditShow(id) {
     const shows = await this.fetchLiveShows();
-    const show = shows.find(show =>  show.id === id);
+    const show = shows.find(show => String(show.id) === String(id));
 
     if (!show) return;
 
-    this.liveForm.elements.date.value = show.date;
+    this.liveForm.elements.date.value = show.date ? show.date.slice(0, 10) : '';
     this.liveForm.elements.time.value = show.time;
     this.liveForm.elements.city.value = show.city;
     this.liveForm.elements.country.value = show.country;
@@ -301,22 +316,16 @@ class Admin {
   }
 
   async handleDeleteShow(id) {
-    let confirmed = confirm('Are you sure you want to delete this show?');
-    if (!confirmed) return;
-
+    if (!confirm('Are you sure you want to delete this show?')) return;
     try {
-      let response = await fetch(`${API_BASE}live/${id}`, {
-        method: 'DELETE'
-      })
-
-
-      if (!response.ok) {
-        throw new Error(`There was an HTTP error ${response.status}`)
-      }
-
+      const { error } = await getSupabase()
+        .from('live')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
       this.renderLiveShow();
-    } catch(error) {
-      console.error(error);
+    } catch (error) {
+      console.error('Error deleting show', error);
     }
   }
 
@@ -325,23 +334,233 @@ class Admin {
     const deleteBtn = event.target.closest('.delete');
 
     if (editBtn) {
-      const id = Number(editBtn.dataset.id);
+      const id = editBtn.dataset.id;
       this.handleEditShow(id);
     }
 
     if (deleteBtn) {
-      const id = Number(deleteBtn.dataset.id);
+      const id = deleteBtn.dataset.id;
       this.handleDeleteShow(id);
     }
-
   }
 
-  handleAddVideo() {
-
+  async addVideo(video) {
+    try {
+      const { error } = await getSupabase()
+        .from('videos')
+        .insert(video);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error adding video', error);
+    }
   }
 
-  handleAddMusic() {
+  handleVideoTableClick(event) {
+    const editBtn = event.target.closest('.edit');
+    const deleteBtn = event.target.closest('.delete');
 
+    if (editBtn) {
+      const id = editBtn.dataset.id;
+      this.handleEditVideo(id);
+    }
+
+    if (deleteBtn) {
+      const id = deleteBtn.dataset.id;
+      this.handleDeleteVideo(id);
+    }
+  }
+
+  async updateVideo(video, id) {
+    try {
+      const { error } = await getSupabase()
+        .from('videos')
+        .update(video)
+        .eq('id', id);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating show', error);
+    }
+  }
+
+  async handleAddVideo(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(this.videoForm);
+    const videoInfo = Object.fromEntries(formData.entries());
+
+    const payload = {
+      title: videoInfo.title,
+      src: videoInfo.src
+    }
+
+    if (!payload.title || !payload.src) {
+      alert('Must add fields title and url');
+      return;
+    }
+
+    if (this.editingId) {
+      await this.updateVideo(payload, this.editingId);
+    } else {
+      await this.addVideo(payload);
+    }
+
+    this.editingId = null;
+    this.videoForm.reset();
+    this.closeModal();
+    this.renderVideos();
+  }
+
+  async handleDeleteVideo(id) {
+    if (!confirm('Are you sure you want to delete this video?')) return;
+    try {
+      const { error } = await getSupabase()
+        .from('videos')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      this.renderVideos();
+    } catch (error) {
+      console.error('Error deleting show', error);
+    }
+  }
+
+  async handleEditVideo(id) {
+    const videos = await this.fetchVideos();
+    const video = videos.find(v => String(v.id) === String(id));
+
+    if (!video) return;
+    console.log(video);
+
+    this.videoForm.elements.title.value = video.title;
+    this.videoForm.elements.src.value = video.src;
+
+    this.editingId = id;
+
+    this.openModal(this.videoModal);
+  }
+
+  async updateMusic(payload, id) {
+    try {
+      const { error } = await getSupabase()
+        .from('music')
+        .update(payload)
+        .eq('id', id);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating music', error);
+    }
+  }
+
+  async uploadCover(file) {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { data, error } = await getSupabase()
+      .storage
+      .from('covers')
+      .upload(fileName, file);
+  
+    if (error) throw new Error(error);
+  
+    const { data: { publicUrl } } = getSupabase()
+      .storage
+      .from('covers')
+      .getPublicUrl(fileName);
+  
+    return publicUrl;
+  }
+  
+  async handleAddMusic(event) {
+    event.preventDefault();
+    const formData = new FormData(this.musicForm);
+    const musicInfo = Object.fromEntries(formData.entries());
+    const coverFile = this.musicForm.querySelector('#music-cover').files[0];
+  
+    if (!musicInfo.title || !musicInfo.releaseYear) {
+      alert('Title and release year are required');
+      return;
+    }
+  
+    if (!this.editingId && !coverFile) {
+      alert('Cover image is required');
+      return;
+    }
+  
+    try {
+      let coverUrl;
+      if (coverFile) coverUrl = await this.uploadCover(coverFile);
+  
+      const payload = {
+        title: musicInfo.title,
+        releaseYear: musicInfo.releaseYear,
+        spotify: musicInfo.spotify || null,
+        bandcamp: musicInfo.bandcamp || null,
+        appleMusic: musicInfo.apple || null,
+        youtube: musicInfo.youtube || null
+      };
+
+      console.log('payload:', payload);
+      console.log('appleMusic field:', musicInfo.appleMusic);
+  
+      if (coverUrl) payload.cover = coverUrl;
+  
+      if (this.editingId) {
+        await this.updateMusic(payload, this.editingId);
+      } else {
+        const { error } = await getSupabase().from('music').insert(payload);
+        if (error) throw error;
+      }
+  
+      this.editingId = null;
+      this.musicForm.reset();
+      this.closeModal();
+      this.renderMusic();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async handleDeleteMusic(id) {
+    if (!confirm('Are you sure you want to delete this album?')) return;
+    try {
+      const { error } = await getSupabase()
+        .from('music')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      this.renderMusic();
+    } catch (error) {
+      console.error('Error deleting show', error);
+    }
+  }
+
+  handleMusicTableClick(event) {
+    const editBtn = event.target.closest('.edit');
+    const deleteBtn = event.target.closest('.delete');
+
+    if (editBtn) {
+      const id = editBtn.dataset.id;
+      this.handleEditMusic(id);
+    }
+
+    if (deleteBtn) {
+      const id = deleteBtn.dataset.id;
+      this.handleDeleteMusic(id);
+    }
+  }
+
+  async handleEditMusic(id) {
+    const albums = await this.fetchMusic();
+    const album = albums.find(album => String(album.id) === String(id));
+    if (!album) return;
+  
+    this.musicForm.elements.title.value = album.title;
+    this.musicForm.elements.releaseYear.value = album.releaseYear ?? '';
+    this.musicForm.elements.spotify.value = album.spotify ?? '';
+    this.musicForm.elements.bandcamp.value = album.bandcamp ?? '';
+    this.musicForm.elements.apple.value = album.appleMusic ?? '';
+    this.musicForm.elements.youtube.value = album.youtube ?? '';
+  
+    this.editingId = id;
+    this.openModal(this.musicModal);
   }
 }
 
