@@ -19,10 +19,8 @@ if (!session) {
 
 const BASE_PATH = import.meta.env.BASE_URL;
 
-
 class Admin {
   constructor() {
-    console.log('Admin instantiated');
     this.liveSection = document.getElementById('live-admin');
     this.liveTable = document.getElementById('live-table');
     this.musicSection = document.getElementById('music-admin');
@@ -36,8 +34,9 @@ class Admin {
     this.liveForm = document.getElementById('live-form');
     this.videoForm = document.getElementById('video-form');
     this.musicForm = document.getElementById('music-form');
+    this.signOutBtn = document.getElementById('signout-btn');
 
-    this.editingId;
+    this.editingId = null;
 
     this.cancelBtns.forEach(btn => {
       btn.addEventListener('click', () => this.closeModal());
@@ -58,9 +57,19 @@ class Admin {
     this.musicTable.addEventListener('click', (event) => this.handleMusicTableClick(event));
     this.videoForm.addEventListener('submit', (event) => this.handleAddVideo(event));
     this.musicForm.addEventListener('submit', (event) => this.handleAddMusic(event));
+    this.signOutBtn.addEventListener('click', () => this.signOut());
 
     [this.liveModal, this.videoModal, this.musicModal].forEach(modal => {
       modal.addEventListener('click', e => e.stopPropagation());
+    });
+
+    document.querySelectorAll('.section-toggle').forEach(heading => {
+      heading.addEventListener('click', () => {
+        const content = heading.nextElementSibling;
+        const icon = heading.querySelector('.toggle-icon');
+        const isExpanded = content.classList.toggle('expanded');
+        icon.textContent = isExpanded ? '▼' : '▶';
+      });
     });
 
     this.renderLiveShow();
@@ -83,6 +92,30 @@ class Admin {
     this.liveForm.reset();
     this.musicForm.reset();
     this.videoForm.reset();
+  }
+
+  formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      timeZone: 'UTC'
+    });
+  }
+
+  normalizeYouTubeUrl(url) {
+    const watchMatch = url.match(/[?&]v=([^&]+)/);
+    const shortMatch = url.match(/youtu\.be\/([^?]+)/);
+    const embedMatch = url.match(/embed\/([^?]+)/);
+  
+    let videoId = null;
+    if (watchMatch) videoId = watchMatch[1];
+    else if (shortMatch) videoId = shortMatch[1];
+    else if (embedMatch) videoId = embedMatch[1];
+  
+    if (!videoId) throw new Error('Invalid YouTube URL');
+    return `https://www.youtube.com/embed/${videoId}`;
   }
 
   async fetchLiveShows() {
@@ -114,13 +147,13 @@ class Admin {
     shows.forEach(show => {
       const row = document.createElement('tr');
       row.innerHTML = `
-        <td>${show.date.slice(0, 10)}</td>
+        <td>${this.formatDate(show.date)}</td>
         <td>${show.time}</td>
         <td>${show.city}</td>
         <td>${show.country}</td>
         <td>${show.venue}</td>
         <td><a href="${show.ticketUrl}" target="_blank">Link</a></td>
-        <td>${show.soldOut}</td>
+        <td>${show.soldOut ? 'Yes' : 'No'}</td>
         <td>${show.notes || ''}</td>
         <td>
           <button class="button edit" data-id="${show.id}">Edit</button>
@@ -162,7 +195,7 @@ class Admin {
       row.dataset.id = video.id;
       row.innerHTML = `
         <td>${video.title}</td>
-        <td>${video.src}</td>
+        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${video.src}</td>
         <td>
           <button class="button edit" data-id="${video.id}">Edit</button>
           <button class="button delete" data-id="${video.id}">Delete</button>
@@ -180,7 +213,6 @@ class Admin {
         .order('id', { ascending: true });
 
       if (error) throw error;
-      console.log(music)
       return music;
 
     } catch(error) {
@@ -384,26 +416,32 @@ class Admin {
 
   async handleAddVideo(event) {
     event.preventDefault();
-    
     const formData = new FormData(this.videoForm);
     const videoInfo = Object.fromEntries(formData.entries());
-
+  
     const payload = {
       title: videoInfo.title,
       src: videoInfo.src
-    }
-
+    };
+  
     if (!payload.title || !payload.src) {
       alert('Must add fields title and url');
       return;
     }
-
+  
+    try {
+      payload.src = this.normalizeYouTubeUrl(payload.src);
+    } catch (e) {
+      alert('Please enter a valid YouTube URL');
+      return;
+    }
+  
     if (this.editingId) {
       await this.updateVideo(payload, this.editingId);
     } else {
       await this.addVideo(payload);
     }
-
+  
     this.editingId = null;
     this.videoForm.reset();
     this.closeModal();
@@ -496,9 +534,6 @@ class Admin {
         appleMusic: musicInfo.apple || null,
         youtube: musicInfo.youtube || null
       };
-
-      console.log('payload:', payload);
-      console.log('appleMusic field:', musicInfo.appleMusic);
   
       if (coverUrl) payload.cover = coverUrl;
   
@@ -561,6 +596,15 @@ class Admin {
   
     this.editingId = id;
     this.openModal(this.musicModal);
+  }
+
+  async signOut() {
+    const { error } = await getSupabase().auth.signOut();
+    if (error) {
+      console.error(`Error signing out: ${error}`);
+      return;
+    };
+    window.location.href = `${BASE_PATH}login.html`;
   }
 }
 
