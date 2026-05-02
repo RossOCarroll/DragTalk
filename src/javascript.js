@@ -24,6 +24,7 @@ class BandPage {
     this.mainContent = document.getElementById('main-content');
     this.navBarDelegation();
     this.loadHome();
+    this.loadCarousel();
 
     this.mobileButton = document.querySelector('.nav-toggle');
     this.navLinks = document.querySelector('nav ul.nav-links');
@@ -38,6 +39,45 @@ class BandPage {
     this.closeBtn.addEventListener('click', () => {
       this.modal.classList.add('hidden');
     });
+  }
+
+  loadCarousel() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const dotsContainer = document.querySelector('.carousel-dots');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    let current = 0;
+    let autoPlay;
+
+    slides.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.classList.add('carousel-dot');
+      if (i === 0) dot.classList.add('active');
+      dot.addEventListener('click', () => goTo(i));
+      dotsContainer.appendChild(dot);
+    });
+
+    function goTo(index) {
+      slides[current].classList.remove('active');
+      dotsContainer.children[current].classList.remove('active');
+      current = (index + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dotsContainer.children[current].classList.add('active');
+    }
+
+    function startAutoPlay() {
+      autoPlay = setInterval(() => goTo(current + 1), 10000);
+    }
+
+    function stopAutoPlay() {
+      clearInterval(autoPlay);
+    }
+
+    prevBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current - 1); startAutoPlay(); });
+    nextBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current + 1); startAutoPlay(); });
+
+    slides[0].classList.add('active');
+    startAutoPlay();
   }
 
   hamburgerSetUp() {
