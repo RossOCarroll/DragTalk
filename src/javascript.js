@@ -41,43 +41,78 @@ class BandPage {
     });
   }
 
-  loadCarousel() {
-    const slides = document.querySelectorAll('.carousel-slide');
-    const dotsContainer = document.querySelector('.carousel-dots');
-    const prevBtn = document.querySelector('.carousel-prev');
-    const nextBtn = document.querySelector('.carousel-next');
-    let current = 0;
-    let autoPlay;
-
-    slides.forEach((_, i) => {
-      const dot = document.createElement('div');
-      dot.classList.add('carousel-dot');
-      if (i === 0) dot.classList.add('active');
-      dot.addEventListener('click', () => goTo(i));
-      dotsContainer.appendChild(dot);
-    });
-
-    function goTo(index) {
-      slides[current].classList.remove('active');
-      dotsContainer.children[current].classList.remove('active');
-      current = (index + slides.length) % slides.length;
-      slides[current].classList.add('active');
-      dotsContainer.children[current].classList.add('active');
+  async loadCarousel() {
+    try {
+      const { data: slides, error } = await getSupabase()
+        .from('carousel')
+        .select('*')
+        .order('order', { ascending: true });
+  
+      if (error) throw error;
+  
+      const track = document.querySelector('.carousel-track');
+      const dotsContainer = document.querySelector('.carousel-dots');
+      const prevBtn = document.querySelector('.carousel-prev');
+      const nextBtn = document.querySelector('.carousel-next');
+      if (!track || !dotsContainer) return;
+  
+      track.innerHTML = '';
+      dotsContainer.innerHTML = '';
+  
+      let current = 0;
+      let autoPlay;
+  
+      slides.forEach((slide, i) => {
+        const slideEl = document.createElement('div');
+        slideEl.classList.add('carousel-slide');
+        if (i === 0) slideEl.classList.add('active');
+        slideEl.innerHTML = `
+          <img src="${slide.image}" alt="${slide.title}">
+          <div class="carousel-info">
+            <p class="modal-subtitle">${slide.subtitle ?? ''}</p>
+            <h2 class="modal-title">${slide.title}</h2>
+            <p class="modal-desc">${slide.description ?? ''}</p>
+            <a href="${slide.link ?? '#'}" class="modal-cta" target="_blank">Buy Now</a>
+          </div>
+        `;
+        track.appendChild(slideEl);
+  
+        const dot = document.createElement('div');
+        dot.classList.add('carousel-dot');
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      });
+  
+      const allSlides = track.querySelectorAll('.carousel-slide');
+      const allDots = dotsContainer.querySelectorAll('.carousel-dot');
+  
+      function goTo(index) {
+        allSlides[current].classList.remove('active');
+        allDots[current].classList.remove('active');
+        current = (index + allSlides.length) % allSlides.length;
+        allSlides[current].classList.add('active');
+        allDots[current].classList.add('active');
+      }
+  
+      function startAutoPlay() {
+        autoPlay = setInterval(() => goTo(current + 1), 7000);
+      }
+  
+      function stopAutoPlay() {
+        clearInterval(autoPlay);
+      }
+  
+      if (prevBtn && nextBtn) {
+        prevBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current - 1); startAutoPlay(); });
+        nextBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current + 1); startAutoPlay(); });
+      }
+  
+      startAutoPlay();
+  
+    } catch (err) {
+      console.error('Error loading carousel', err);
     }
-
-    function startAutoPlay() {
-      autoPlay = setInterval(() => goTo(current + 1), 10000);
-    }
-
-    function stopAutoPlay() {
-      clearInterval(autoPlay);
-    }
-
-    prevBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current - 1); startAutoPlay(); });
-    nextBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current + 1); startAutoPlay(); });
-
-    slides[0].classList.add('active');
-    startAutoPlay();
   }
 
   hamburgerSetUp() {
@@ -386,9 +421,16 @@ class BandPage {
   }
 
   buildDate({date, time, city, country, venue, ticketUrl, soldOut}) {
+    const formattedDate = new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      timeZone: 'UTC'
+    });
+  
     return `
       <div class="tour-info">
-        <p class="tour-date">${date.slice(0, 10)}</p>
+        <p class="tour-date">${formattedDate}</p>
         <p class="tour-time">${time}</p>
         <p class="tour-location">${city}, ${country}</p>
         <p class="tour-venue">${venue}</p>

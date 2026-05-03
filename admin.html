@@ -46,6 +46,16 @@
         <button id="add-music-btn" class="button">Add New Album</button>
       </div>
     </section>
+
+    <section id="carousel-admin">
+      <h2 class="section-toggle">Manage Carousel <span class="toggle-icon">▶</span></h2>
+      <div class="section-content">
+        <div id="carousel-list">
+          <table id="carousel-table"></table>
+        </div>
+        <button id="add-carousel-btn" class="button">Add New Slide</button>
+      </div>
+    </section>
   </main>
 
 <div id="modal-layer" class="hidden">
@@ -180,6 +190,40 @@
         <button type="button" class="button cancel-btn">Cancel</button>
       </div>
 
+    </form>
+  </div>
+
+  <div id="carousel-modal" class="modal hidden">
+    <h3>Add / Edit Slide</h3>
+    <form id="carousel-form">
+      <div class="field">
+        <label for="carousel-title">Title</label>
+        <input type="text" id="carousel-title" name="title" required>
+      </div>
+      <div class="field">
+        <label for="carousel-subtitle">Subtitle</label>
+        <input type="text" id="carousel-subtitle" name="subtitle">
+      </div>
+      <div class="field">
+        <label for="carousel-desc">Description</label>
+        <input type="text" id="carousel-desc" name="description">
+      </div>
+      <div class="field">
+        <label for="carousel-cover">Image</label>
+        <input type="file" id="carousel-cover" name="image" accept="image/*">
+      </div>
+      <div class="field">
+        <label for="carousel-link">Link URL</label>
+        <input type="text" id="carousel-link" name="link">
+      </div>
+      <div class="field">
+        <label for="carousel-order">Order</label>
+        <input type="number" id="carousel-order" name="order">
+      </div>
+      <div class="modal-buttons">
+        <button type="submit" class="button">Save</button>
+        <button type="button" class="button cancel-btn">Cancel</button>
+      </div>
     </form>
   </div>
 </div>
