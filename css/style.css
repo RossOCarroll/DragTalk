@@ -165,6 +165,11 @@ nav a.active {
   cursor: pointer;
 }
 
+.modal-close {
+  color: var(--text-color);
+  -webkit-appearance: none;
+}
+
 .button:hover,
 .tour-tickets a:hover,
 .form-actions button:hover,

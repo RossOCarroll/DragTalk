@@ -84,6 +84,21 @@ class Admin {
     this.renderMusic();
     this.renderCarousel();
 
+    let inactivityTimer;
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(async () => {
+        await getSupabase().auth.signOut();
+        window.location.href = `${BASE_PATH}login.html`;
+      }, 30 * 60 * 1000); // 30 minutes
+    };
+
+    document.addEventListener('mousemove', resetTimer);
+    document.addEventListener('keypress', resetTimer);
+    document.addEventListener('click', resetTimer);
+    resetTimer();
+
   }
 
   openModal(modal) {
@@ -616,144 +631,142 @@ class Admin {
     window.location.href = `${BASE_PATH}login.html`;
   }
 
-  // -------- CAROUSEL --------
-
-async fetchCarousel() {
-  try {
-    const { data, error } = await getSupabase()
-      .from('carousel')
-      .select('*')
-      .order('order', { ascending: true });
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error fetching carousel', error);
+  async fetchCarousel() {
+    try {
+      const { data, error } = await getSupabase()
+        .from('carousel')
+        .select('*')
+        .order('order', { ascending: true });
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      console.error('Error fetching carousel', error);
+    }
   }
-}
 
-async renderCarousel() {
-  const slides = await this.fetchCarousel();
-  if (!slides) return;
+  async renderCarousel() {
+    const slides = await this.fetchCarousel();
+    if (!slides) return;
 
-  this.carouselTable.innerHTML = `
-    <tr>
-      <th>Image</th><th>Title</th><th>Subtitle</th><th>Description</th><th>Link</th><th>Order</th><th>Actions</th>
-    </tr>
-  `;
-
-  slides.forEach(slide => {
-    const row = document.createElement('tr');
-    row.dataset.id = slide.id;
-    row.innerHTML = `
-      <td><img src="${slide.image}" alt="${slide.title}" style="width:50px; height:auto;"></td>
-      <td>${slide.title}</td>
-      <td>${slide.subtitle ?? ''}</td>
-      <td>${slide.description ?? ''}</td>
-      <td>${slide.link ?? ''}</td>
-      <td>${slide.order ?? ''}</td>
-      <td>
-        <button class="button edit" data-id="${slide.id}">Edit</button>
-        <button class="button delete" data-id="${slide.id}">Delete</button>
-      </td>
+    this.carouselTable.innerHTML = `
+      <tr>
+        <th>Image</th><th>Title</th><th>Subtitle</th><th>Description</th><th>Link</th><th>Order</th><th>Actions</th>
+      </tr>
     `;
-    this.carouselTable.appendChild(row);
-  });
-}
 
-async uploadCarouselImage(file) {
-  const fileName = `${Date.now()}-${file.name}`;
-  const { error } = await getSupabase()
-    .storage
-    .from('covers')
-    .upload(fileName, file);
-  if (error) throw error;
-  const { data: { publicUrl } } = getSupabase()
-    .storage
-    .from('covers')
-    .getPublicUrl(fileName);
-  return publicUrl;
-}
-
-async handleAddCarousel(event) {
-  event.preventDefault();
-  const formData = new FormData(this.carouselForm);
-  const info = Object.fromEntries(formData.entries());
-  const imageFile = this.carouselForm.querySelector('#carousel-cover').files[0];
-
-  if (!info.title) {
-    alert('Title is required');
-    return;
+    slides.forEach(slide => {
+      const row = document.createElement('tr');
+      row.dataset.id = slide.id;
+      row.innerHTML = `
+        <td><img src="${slide.image}" alt="${slide.title}" style="width:50px; height:auto;"></td>
+        <td>${slide.title}</td>
+        <td>${slide.subtitle ?? ''}</td>
+        <td>${slide.description ?? ''}</td>
+        <td>${slide.link ?? ''}</td>
+        <td>${slide.order ?? ''}</td>
+        <td>
+          <button class="button edit" data-id="${slide.id}">Edit</button>
+          <button class="button delete" data-id="${slide.id}">Delete</button>
+        </td>
+      `;
+      this.carouselTable.appendChild(row);
+    });
   }
 
-  if (!this.editingId && !imageFile) {
-    alert('Image is required');
-    return;
+  async uploadCarouselImage(file) {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { error } = await getSupabase()
+      .storage
+      .from('covers')
+      .upload(fileName, file);
+    if (error) throw error;
+    const { data: { publicUrl } } = getSupabase()
+      .storage
+      .from('covers')
+      .getPublicUrl(fileName);
+    return publicUrl;
   }
 
-  try {
-    let imageUrl;
-    if (imageFile) imageUrl = await this.uploadCarouselImage(imageFile);
+  async handleAddCarousel(event) {
+    event.preventDefault();
+    const formData = new FormData(this.carouselForm);
+    const info = Object.fromEntries(formData.entries());
+    const imageFile = this.carouselForm.querySelector('#carousel-cover').files[0];
 
-    const payload = {
-      title: info.title,
-      subtitle: info.subtitle || null,
-      description: info.description || null,
-      link: info.link || null,
-      order: info.order ? parseInt(info.order) : null
-    };
-
-    if (imageUrl) payload.image = imageUrl;
-
-    if (this.editingId) {
-      await getSupabase().from('carousel').update(payload).eq('id', this.editingId);
-    } else {
-      await getSupabase().from('carousel').insert(payload);
+    if (!info.title) {
+      alert('Title is required');
+      return;
     }
 
-    this.editingId = null;
-    this.carouselForm.reset();
-    this.closeModal();
-    this.renderCarousel();
-  } catch (err) {
-    console.error('Error saving carousel slide', err);
+    if (!this.editingId && !imageFile) {
+      alert('Image is required');
+      return;
+    }
+
+    try {
+      let imageUrl;
+      if (imageFile) imageUrl = await this.uploadCarouselImage(imageFile);
+
+      const payload = {
+        title: info.title,
+        subtitle: info.subtitle || null,
+        description: info.description || null,
+        link: info.link || null,
+        order: info.order ? parseInt(info.order) : null
+      };
+
+      if (imageUrl) payload.image = imageUrl;
+
+      if (this.editingId) {
+        await getSupabase().from('carousel').update(payload).eq('id', this.editingId);
+      } else {
+        await getSupabase().from('carousel').insert(payload);
+      }
+
+      this.editingId = null;
+      this.carouselForm.reset();
+      this.closeModal();
+      this.renderCarousel();
+    } catch (err) {
+      console.error('Error saving carousel slide', err);
+    }
   }
-}
 
-async handleEditCarousel(id) {
-  const slides = await this.fetchCarousel();
-  const slide = slides.find(s => String(s.id) === String(id));
-  if (!slide) return;
+  async handleEditCarousel(id) {
+    const slides = await this.fetchCarousel();
+    const slide = slides.find(s => String(s.id) === String(id));
+    if (!slide) return;
 
-  this.carouselForm.elements.title.value = slide.title ?? '';
-  this.carouselForm.elements.subtitle.value = slide.subtitle ?? '';
-  this.carouselForm.elements.description.value = slide.description ?? '';
-  this.carouselForm.elements.link.value = slide.link ?? '';
-  this.carouselForm.elements.order.value = slide.order ?? '';
+    this.carouselForm.elements.title.value = slide.title ?? '';
+    this.carouselForm.elements.subtitle.value = slide.subtitle ?? '';
+    this.carouselForm.elements.description.value = slide.description ?? '';
+    this.carouselForm.elements.link.value = slide.link ?? '';
+    this.carouselForm.elements.order.value = slide.order ?? '';
 
-  this.editingId = id;
-  this.openModal(this.carouselModal);
-}
-
-async handleDeleteCarousel(id) {
-  if (!confirm('Are you sure you want to delete this slide?')) return;
-  try {
-    const { error } = await getSupabase()
-      .from('carousel')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
-    this.renderCarousel();
-  } catch (error) {
-    console.error('Error deleting slide', error);
+    this.editingId = id;
+    this.openModal(this.carouselModal);
   }
-}
 
-handleCarouselTableClick(event) {
-  const editBtn = event.target.closest('.edit');
-  const deleteBtn = event.target.closest('.delete');
-  if (editBtn) this.handleEditCarousel(editBtn.dataset.id);
-  if (deleteBtn) this.handleDeleteCarousel(deleteBtn.dataset.id);
-}
+  async handleDeleteCarousel(id) {
+    if (!confirm('Are you sure you want to delete this slide?')) return;
+    try {
+      const { error } = await getSupabase()
+        .from('carousel')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      this.renderCarousel();
+    } catch (error) {
+      console.error('Error deleting slide', error);
+    }
+  }
+
+  handleCarouselTableClick(event) {
+    const editBtn = event.target.closest('.edit');
+    const deleteBtn = event.target.closest('.delete');
+    if (editBtn) this.handleEditCarousel(editBtn.dataset.id);
+    if (deleteBtn) this.handleDeleteCarousel(deleteBtn.dataset.id);
+  }
 }
 
 if (document.readyState === 'loading') {
