@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
       errorMsg.textContent = error.message;
       errorMsg.style.display = 'block';
     } else {
-      window.location.href = 'admin.html';
+      window.location.href = `${BASE_PATH}admin.html`;
     }
   });
 });

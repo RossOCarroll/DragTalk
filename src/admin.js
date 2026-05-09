@@ -22,9 +22,8 @@ function getSupabase() {
 
 const { data: { session } } = await getSupabase().auth.getSession();
 if (!session) {
-  window.location.href = '/login.html';
+  window.location.href = `${BASE_PATH}login.html`;
 }
-
 const BASE_PATH = import.meta.env.BASE_URL;
 
 class Admin {
