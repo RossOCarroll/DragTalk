@@ -83,7 +83,7 @@ class Admin {
         const content = heading.nextElementSibling;
         const icon = heading.querySelector('.toggle-icon');
         const isExpanded = content.classList.toggle('expanded');
-        icon.textContent = isExpanded ? '▼' : '▶';
+        icon.textContent = isExpanded ? '▼\uFE0E' : '▶\uFE0E';
       });
     });
 
