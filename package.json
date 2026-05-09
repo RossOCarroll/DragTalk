@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist",
+    "deploy": "vite build && gh-pages -d dist --branch gh-pages",
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
