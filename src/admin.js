@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
+const BASE_PATH = import.meta.env.BASE_URL;
+
 let supabaseClient;
 
 function getSupabase() {
@@ -24,7 +26,6 @@ const { data: { session } } = await getSupabase().auth.getSession();
 if (!session) {
   window.location.href = `${BASE_PATH}login.html`;
 }
-const BASE_PATH = import.meta.env.BASE_URL;
 
 class Admin {
   constructor() {

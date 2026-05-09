@@ -4,7 +4,15 @@ const BASE_PATH = import.meta.env.BASE_URL;
 
 const supabase = createClient(
   'https://xnqvjcjmympojjtkhcmt.supabase.co',
-  'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
+  'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft',
+  {
+    auth: {
+      persistSession: true,
+      storageKey: 'drag-talk-auth',
+      detectSessionInUrl: false,
+      flowType: 'pkce'
+    }
+  }
 );
 
 document.addEventListener('DOMContentLoaded', () => {
