@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
+const BASE_PATH = import.meta.env.BASE_URL;
+
 const supabase = createClient(
   'https://xnqvjcjmympojjtkhcmt.supabase.co',
   'sb_publishable_poUZopim6HVLH-BycJrXag_NfIEh4Ft'
@@ -11,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   form.addEventListener('submit', async e => {
     e.preventDefault();
-
     const email = form.querySelector('#username').value.trim();
     const password = form.querySelector('#password').value.trim();
 
