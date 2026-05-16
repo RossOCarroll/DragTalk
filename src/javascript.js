@@ -291,7 +291,7 @@ class BandPage {
   
         const playBtn = document.createElement('div');
         playBtn.classList.add('play-btn');
-        playBtn.innerHTML = '▶';
+        playBtn.innerHTML = '▶\uFE0E';
         thumb.appendChild(playBtn);
   
         thumb.addEventListener('click', () => {
@@ -335,6 +335,7 @@ class BandPage {
 
         const cover = document.createElement('img');
         cover.src = album.cover;
+        cover.loading = 'lazy';
 
         const title = document.createElement('h2');
         title.textContent = album.title;

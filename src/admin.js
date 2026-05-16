@@ -266,7 +266,7 @@ class Admin {
       const tr = document.createElement('tr');
   
       const coverTd = document.createElement('td');
-      coverTd.innerHTML = `<img src="${album.cover}" alt="${album.title}" style="width:50px; height:auto;">`;
+      coverTd.innerHTML = `<img src="${album.cover}" alt="${album.title}" loading="lazy" style="width:50px; height:auto;">`;
       tr.appendChild(coverTd);
   
       const titleTd = document.createElement('td');
@@ -499,7 +499,6 @@ class Admin {
     const video = videos.find(v => String(v.id) === String(id));
 
     if (!video) return;
-    console.log(video);
 
     this.videoForm.elements.title.value = video.title;
     this.videoForm.elements.src.value = video.src;

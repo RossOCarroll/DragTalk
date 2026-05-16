@@ -500,6 +500,9 @@ footer.social svg:hover {
   font-family: 'Funnel Sans', sans-serif;
   color: var(--text-color);
   width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 0;
 }
 
 .form-field input:focus,
