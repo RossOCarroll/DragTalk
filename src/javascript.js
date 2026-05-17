@@ -187,14 +187,15 @@ class BandPage {
   async loadSection(url) {
     try {
       const section = await this.fetchSectionNode(url);
-
+      
+      this.mainContent.innerHTML = '';
+      this.mainContent.appendChild(section);
+  
       if (url.includes('videos-section.html')) await this.loadVideos(section);
       if (url.includes('music-section.html')) await this.loadMusic(section);
       if (url.includes('live-section.html')) await this.loadLive(section);
       if (url.includes('sign-up-section.html')) await this.loadSignUp(section);
-
-      this.mainContent.innerHTML = '';
-      this.mainContent.appendChild(section);
+  
     } catch (err) {
       console.error('Error loading section', err);
     }
@@ -203,25 +204,26 @@ class BandPage {
   async loadHome() {
     try {
       const homeSection = await this.fetchSectionNode(`${BASE_PATH}sections/home-section.html`);
+      this.mainContent.innerHTML = '';
+      this.mainContent.appendChild(homeSection);
+  
       const sections = ['live', 'music', 'videos', 'sign-up'];
   
       for (const sec of sections) {
         try {
           const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
+          homeSection.appendChild(node);
   
           if (sec === 'live') await this.loadLive(node);
           if (sec === 'music') await this.loadMusic(node);
           if (sec === 'videos') await this.loadVideos(node);
           if (sec === 'sign-up') await this.loadSignUp(node);
   
-          homeSection.appendChild(node);
         } catch (secErr) {
           console.error(`Failed loading section: ${sec}`, secErr);
         }
       }
   
-      this.mainContent.innerHTML = '';
-      this.mainContent.appendChild(homeSection);
     } catch (err) {
       console.error('Error loading home', err);
     }
