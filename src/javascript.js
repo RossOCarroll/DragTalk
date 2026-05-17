@@ -228,6 +228,7 @@ class BandPage {
   }
 
   async loadVideos(section) {
+    const loading = section.querySelector('.section-loading');
     try {
       const { data: videos, error } = await getSupabase()
         .from('videos')
@@ -235,6 +236,7 @@ class BandPage {
         .order('id', { ascending: true });
   
       if (error) throw error;
+      if (loading) loading.remove();
   
       const lightbox = document.createElement('div');
       lightbox.classList.add('video-lightbox', 'hidden');
@@ -318,6 +320,7 @@ class BandPage {
   }
 
   async loadMusic(section) {
+    const loading = section.querySelector('.section-loading');
     try {
       const { data: albums, error } = await getSupabase()
         .from('music')
@@ -325,6 +328,7 @@ class BandPage {
         .order('releaseYear', { ascending: false });
 
       if (error) throw error;
+      if (loading) loading.remove();
 
       const albumsDiv = document.createElement('div');
       albumsDiv.classList.add('albums');
@@ -374,11 +378,13 @@ class BandPage {
       section.appendChild(albumsDiv);
 
     } catch (err) {
+      if (loading) loading.textContent = 'Failed to load music.';
       console.error('Error loading music', err);
     }
   }
 
   async loadLive(section) {
+    const loading = section.querySelector('.section-loading');
     try {
       const { data: liveDates, error } = await getSupabase()
         .from('live')
@@ -386,6 +392,7 @@ class BandPage {
         .order('date', { ascending: true });
 
       if (error) throw error;
+      if (loading) loading.remove();
 
       const today = new Date();
       today.setHours(0,0,0,0);
@@ -425,6 +432,7 @@ class BandPage {
       section.appendChild(container);
 
     } catch (err) {
+      if (loading) loading.textContent = 'Failed to load shows.';
       console.error('Error loading live', err);
     }
   }

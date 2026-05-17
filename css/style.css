@@ -178,6 +178,14 @@ nav a.active {
   color: var(--accent-color);
 }
 
+.section-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--accent-color);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
 /* -------------------- */
 /* Footer / Social      */
 /* -------------------- */

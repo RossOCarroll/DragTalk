@@ -47,6 +47,7 @@ class Admin {
     this.carouselForm = document.getElementById('carousel-form');
     this.carouselModal = document.getElementById('carousel-modal');
     this.addCarouselBtn = document.getElementById('add-carousel-btn');
+    this.homeBtn = document.getElementById('home-btn');
 
     this.editingId = null;
 
@@ -101,6 +102,8 @@ class Admin {
         window.location.href = `${BASE_PATH}login.html`;
       }, 30 * 60 * 1000); // 30 minutes
     };
+
+    this.homeBtn.href = `${BASE_PATH}`
 
     document.addEventListener('mousemove', resetTimer);
     document.addEventListener('keypress', resetTimer);
