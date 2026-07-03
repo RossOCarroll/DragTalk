@@ -6,7 +6,8 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  background-color: var(--secondary-color);
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-soft);
   position: fixed;
   top: 0;
   left: 0;
@@ -43,29 +44,35 @@ header .button {
 }
 
 #admin-content h1 {
-  font-size: 3rem;
+  font-family: 'Funnel Sans', sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: 2.4rem;
   margin-bottom: 2rem;
-  color: var(--text-color);
+  color: var(--text-light);
 }
 
 #admin-content h2 {
-  font-size: 2rem;
-  margin-top: 2rem;
+  font-family: 'Archivo', sans-serif;
+  font-weight: 600;
+  font-size: 1.3rem;
+  margin-top: 0;
   margin-bottom: 1rem;
-  color: var(--accent-color);
-  border-bottom: 2px solid var(--primary-color);
-  padding-bottom: 0.5rem;
+  color: var(--text-light);
+  border-bottom: 1px solid var(--border-strong);
+  padding-bottom: 0.75rem;
 }
 
 /* -------------------- */
 /* Sections             */
 /* -------------------- */
 #live-admin, #videos-admin, #music-admin {
-  background-color: var(--secondary-color);
+  background-color: var(--card-bg);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
 }
 
 .section-toggle {
@@ -79,7 +86,7 @@ header .button {
 .toggle-icon {
   display: none;
   font-size: 0.9rem;
-  color: var(--accent-color);
+  color: var(--gold);
 }
 
 .section-content {
@@ -104,21 +111,22 @@ header .button {
 #video-table td,
 #music-table th,
 #music-table td {
-  border: 1px solid var(--primary-color);
+  border: 1px solid var(--border-soft);
   padding: 0.5rem 1rem;
   text-align: left;
   font-size: 0.95rem;
+  color: var(--text-light);
 }
 
 #live-table th,
 #video-table th {
-  background-color: var(--primary-color);
-  color: var(--accent-color);
+  background-color: var(--bg);
+  color: var(--gold);
 }
 
 #music-table th {
-  background-color: var(--primary-color);
-  color: var(--accent-color);
+  background-color: var(--bg);
+  color: var(--gold);
 }
 
 #live-table tr,
@@ -140,22 +148,34 @@ td .button {
 /* Buttons              */
 /* -------------------- */
 .button {
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--gold);
+  color: #2a0f0a;
   border: none;
   border-radius: 2rem;
   padding: 0.5rem 1rem;
   font-size: 0.9rem;
+  font-weight: 600;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
   margin-top: 0.5rem;
 }
 
 .button:hover {
-  background-color: var(--primary-color);
-  color: var(--accent-color);
+  opacity: .85;
   transform: translateY(-2px);
+}
+
+.cancel-btn {
+  background-color: transparent;
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+
+.cancel-btn:hover {
+  background-color: var(--gold);
+  color: #2a0f0a;
+  opacity: 1;
 }
 
 /* -------------------- */
@@ -171,7 +191,7 @@ td .button {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(10,4,3,.72);
   z-index: 1000;
 }
 
@@ -184,17 +204,22 @@ td .button {
   max-width: 90%;
   max-height: 70vh;
   overflow-y: auto;
-  background: #fff;
-  border-radius: 8px;
+  background: var(--card-bg);
+  border-top: 3px solid var(--gold);
+  border-radius: 4px;
   z-index: 1001;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 24px 70px rgba(0,0,0,.6), 0 0 0 1px rgba(224,180,106,.25);
   padding: 1.5rem;
   display: block;
 }
 
 .modal h3 {
+  font-family: 'Funnel Sans', sans-serif;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: .06em;
   margin: 0 0 1rem 0;
-  color: var(--primary-color);
+  color: var(--text-light);
   font-size: 1.4rem;
 }
 
@@ -210,11 +235,24 @@ td .button {
   display: block;
   font-size: 0.85rem;
   margin-bottom: 0.25rem;
+  color: var(--gold);
+  letter-spacing: .03em;
 }
 
 .field input {
   width: 100%;
   padding: 0.5rem;
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  color: var(--text-light);
+  font-family: 'Funnel Sans', sans-serif;
+  color-scheme: dark;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--gold);
 }
 
 .row {
@@ -233,6 +271,10 @@ td .button {
   margin-bottom: 1rem;
 }
 
+.checkbox input {
+  accent-color: var(--gold);
+}
+
 .modal-buttons {
   display: flex;
   justify-content: center;
@@ -240,11 +282,11 @@ td .button {
 }
 
 #carousel-admin {
-  background-color: var(--secondary-color);
+  background-color: var(--card-bg);
   padding: 1.5rem;
   margin-bottom: 2rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
 }
 
 #carousel-table {
@@ -258,15 +300,16 @@ td .button {
 
 #carousel-table th,
 #carousel-table td {
-  border: 1px solid var(--primary-color);
+  border: 1px solid var(--border-soft);
   padding: 0.5rem 1rem;
   text-align: left;
   font-size: 0.95rem;
+  color: var(--text-light);
 }
 
 #carousel-table th {
-  background-color: var(--primary-color);
-  color: var(--accent-color);
+  background-color: var(--bg);
+  color: var(--gold);
 }
 
 #carousel-table tr {
@@ -310,7 +353,7 @@ td .button {
     #carousel-table tr {
       display: block;
       margin-bottom: 1rem;
-      border: 1px solid var(--primary-color);
+      border: 1px solid var(--border-soft);
       border-radius: 8px;
       padding: 0.75rem;
     }
@@ -324,7 +367,7 @@ td .button {
       justify-content: space-between;
       align-items: center;
       border: none;
-      border-bottom: 1px solid var(--primary-color);
+      border-bottom: 1px solid var(--border-soft);
       padding: 0.4rem 0;
       font-size: 0.85rem;
       gap: 0.5rem;

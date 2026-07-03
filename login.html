@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
   <style>
     main {
       display: flex;
@@ -15,11 +18,21 @@
       text-align: center;
     }
 
+    main h1 {
+      font-family: 'Funnel Sans', sans-serif;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+    }
+
     .login-form {
-      background: var(--secondary-color);
+      background: var(--card-bg);
+      border-top: 3px solid var(--gold);
       padding: 2rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+      border-radius: 3px;
+      box-shadow: 0 24px 70px rgba(0,0,0,.5), 0 0 0 1px rgba(224,180,106,.25);
       max-width: 350px;
       width: 100%;
     }
@@ -28,9 +41,18 @@
       width: 100%;
       padding: 0.75rem;
       margin-bottom: 1rem;
-      border: 1px solid var(--accent-color);
+      background: transparent;
+      border: 1px solid var(--border-strong);
       border-radius: 0.25rem;
+      color: var(--text-light);
+      font-family: 'Funnel Sans', sans-serif;
       font-size: 1rem;
+      color-scheme: dark;
+    }
+
+    .login-form input:focus {
+      outline: none;
+      border-color: var(--gold);
     }
 
     .login-form button {
@@ -38,19 +60,21 @@
       padding: 0.75rem;
       border: none;
       border-radius: 2rem;
-      background-color: var(--accent-color);
-      color: white;
+      background-color: var(--gold);
+      color: #2a0f0a;
+      font-weight: 600;
+      letter-spacing: .05em;
       font-size: 1rem;
       cursor: pointer;
+      transition: opacity .2s ease;
     }
 
     .login-form button:hover {
-      background-color: var(--primary-color);
-      color: var(--accent-color);
+      opacity: .85;
     }
 
     .error-msg {
-      color: red;
+      color: #e0847a;
       margin-bottom: 1rem;
       font-size: 0.9rem;
     }

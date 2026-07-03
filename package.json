@@ -22,9 +22,7 @@
     "url": "https://github.com/RossOCarroll/DragTalk/issues"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.102.1",
-    "cors": "^2.8.6",
-    "express": "^5.2.1"
+    "@supabase/supabase-js": "^2.102.1"
   },
   "devDependencies": {
     "gh-pages": "^6.3.0",

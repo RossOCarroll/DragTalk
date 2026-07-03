@@ -30,6 +30,8 @@ class BandPage {
   constructor() {
     this.navBar = document.querySelectorAll('nav a');
     this.mainContent = document.getElementById('main-content');
+    this.header = document.querySelector('header');
+    this.releaseSlide = null;
     this.navBarDelegation();
     this.loadHome();
     this.loadCarousel();
@@ -40,6 +42,8 @@ class BandPage {
     this.closeBtn = document.querySelector('.modal-close');
     this.hamburgerSetUp();
 
+    window.addEventListener('scroll', () => this.updateHeaderState(), { passive: true });
+
     window.addEventListener('load', () => {
       this.modal.classList.remove('hidden');
     });
@@ -49,15 +53,43 @@ class BandPage {
     });
   }
 
+  updateHeaderState() {
+    if (!this.header) return;
+    const hero = document.querySelector('.home-hero');
+    if (!hero) {
+      this.header.classList.remove('header-on-hero');
+      return;
+    }
+    const heroBottom = hero.getBoundingClientRect().bottom;
+    this.header.classList.toggle('header-on-hero', heroBottom > this.header.offsetHeight);
+  }
+
+  renderFeatureRelease(root) {
+    const wrap = (root || document).querySelector('.feature-release');
+    if (!wrap || !this.releaseSlide) return;
+
+    const slide = this.releaseSlide;
+    const img = wrap.querySelector('.feature-image img');
+    img.src = slide.image;
+    img.alt = slide.title ?? '';
+    wrap.querySelector('.feature-title').textContent = slide.title ?? '';
+    wrap.querySelector('.feature-desc').textContent = slide.description ?? '';
+    wrap.querySelector('.feature-listen').href = slide.link || '#';
+    wrap.classList.add('is-ready');
+  }
+
   async loadCarousel() {
     try {
       const { data: slides, error } = await getSupabase()
         .from('carousel')
         .select('*')
         .order('order', { ascending: true });
-  
+
       if (error) throw error;
-  
+
+      this.releaseSlide = slides[0] || null;
+      this.renderFeatureRelease();
+
       const track = document.querySelector('.carousel-track');
       const dotsContainer = document.querySelector('.carousel-dots');
       const prevBtn = document.querySelector('.carousel-prev');
@@ -190,12 +222,13 @@ class BandPage {
       
       this.mainContent.innerHTML = '';
       this.mainContent.appendChild(section);
-  
+      this.updateHeaderState();
+
       if (url.includes('videos-section.html')) await this.loadVideos(section);
       if (url.includes('music-section.html')) await this.loadMusic(section);
       if (url.includes('live-section.html')) await this.loadLive(section);
       if (url.includes('sign-up-section.html')) await this.loadSignUp(section);
-  
+
     } catch (err) {
       console.error('Error loading section', err);
     }
@@ -206,8 +239,10 @@ class BandPage {
       const homeSection = await this.fetchSectionNode(`${BASE_PATH}sections/home-section.html`);
       this.mainContent.innerHTML = '';
       this.mainContent.appendChild(homeSection);
-  
-      const sections = ['live', 'music', 'videos', 'sign-up'];
+      this.updateHeaderState();
+      this.renderFeatureRelease(homeSection);
+
+      const sections = ['live', 'store', 'videos', 'music', 'sign-up'];
   
       for (const sec of sections) {
         try {
@@ -402,8 +437,11 @@ class BandPage {
       const past = liveDates.filter(d => new Date(d.date) < today);
       const upcoming = liveDates.filter(d => new Date(d.date) >= today);
 
+      const tag = section.querySelector('.section-tag');
+      if (tag) tag.textContent = `${today.getFullYear()} TOUR · ${String(upcoming.length).padStart(2, '0')} DATES`;
+
       const container = document.createElement('div');
-      container.classList.add('live-list');
+      container.classList.add('live-body');
 
       const datesDiv = document.createElement('div');
       datesDiv.classList.add('live-dates');
@@ -577,13 +615,20 @@ class BandPage {
   }
 
   showSignupSuccess(form) {
-    let msg = form.querySelector('.signup-success');
-    if (!msg) {
-      msg = document.createElement('p');
-      msg.className = 'signup-success';
-      msg.textContent = 'Thanks for signing up — see you at the show 🤘';
-      form.appendChild(msg);
-    }
+    this.showToast('Thanks for signing up — see you at the show 🤘');
+  }
+
+  showToast(message) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+  
+    setTimeout(() => toast.classList.add('toast-visible'), 10);
+    setTimeout(() => {
+      toast.classList.remove('toast-visible');
+      setTimeout(() => toast.remove(), 400);
+    }, 4000);
   }
 }
 
