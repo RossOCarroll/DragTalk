@@ -51,6 +51,16 @@
       </div>
     </section>
 
+    <section id="store-admin">
+      <h2 class="section-toggle">Manage Store <span class="toggle-icon">&#9654;&#xFE0E;</span></h2>
+      <div class="section-content">
+        <div id="store-list">
+          <table id="store-table"></table>
+        </div>
+        <button id="add-store-btn" class="button">Add New Item</button>
+      </div>
+    </section>
+
     <section id="carousel-admin">
       <h2 class="section-toggle">Manage Carousel <span class="toggle-icon">&#9654;&#xFE0E;</span></h2>
       <div class="section-content">
@@ -187,6 +197,44 @@
       <div class="field">
         <label for="music-youtube">YouTube URL</label>
         <input type="text" id="music-youtube" name="youtube">
+      </div>
+
+      <div class="modal-buttons">
+        <button type="submit" class="button">Save</button>
+        <button type="button" class="button cancel-btn">Cancel</button>
+      </div>
+
+    </form>
+  </div>
+
+  <div id="store-modal" class="modal hidden">
+    <h3>Add / Edit Store Item</h3>
+
+    <form id="store-form">
+
+      <div class="field">
+        <label for="store-title">Title</label>
+        <input type="text" id="store-title" name="title" required>
+      </div>
+
+      <div class="field">
+        <label for="store-image">Image</label>
+        <input type="file" id="store-image" name="image" accept="image/*">
+      </div>
+
+      <div class="field">
+        <label for="store-price">Price</label>
+        <input type="text" id="store-price" name="price" placeholder="e.g. £25">
+      </div>
+
+      <div class="field">
+        <label for="store-link">Shop Link</label>
+        <input type="text" id="store-link" name="link" placeholder="Defaults to the main store link if left blank">
+      </div>
+
+      <div class="field">
+        <label for="store-order">Order</label>
+        <input type="number" id="store-order" name="order">
       </div>
 
       <div class="modal-buttons">

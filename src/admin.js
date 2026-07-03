@@ -47,6 +47,10 @@ class Admin {
     this.carouselForm = document.getElementById('carousel-form');
     this.carouselModal = document.getElementById('carousel-modal');
     this.addCarouselBtn = document.getElementById('add-carousel-btn');
+    this.storeTable = document.getElementById('store-table');
+    this.storeForm = document.getElementById('store-form');
+    this.storeModal = document.getElementById('store-modal');
+    this.addStoreBtn = document.getElementById('add-store-btn');
     this.homeBtn = document.getElementById('home-btn');
 
     this.editingId = null;
@@ -74,8 +78,11 @@ class Admin {
     this.addCarouselBtn.addEventListener('click', () => this.openModal(this.carouselModal));
     this.carouselForm.addEventListener('submit', e => this.handleAddCarousel(e));
     this.carouselTable.addEventListener('click', e => this.handleCarouselTableClick(e));
+    this.addStoreBtn.addEventListener('click', () => this.openModal(this.storeModal));
+    this.storeForm.addEventListener('submit', e => this.handleAddStore(e));
+    this.storeTable.addEventListener('click', e => this.handleStoreTableClick(e));
 
-    [this.liveModal, this.videoModal, this.musicModal, this.carouselModal].forEach(modal => {
+    [this.liveModal, this.videoModal, this.musicModal, this.carouselModal, this.storeModal].forEach(modal => {
       modal.addEventListener('click', e => e.stopPropagation());
     });
 
@@ -92,6 +99,7 @@ class Admin {
     this.renderVideos();
     this.renderMusic();
     this.renderCarousel();
+    this.renderStore();
 
     let inactivityTimer;
 
@@ -127,6 +135,7 @@ class Admin {
     this.musicForm.reset();
     this.videoForm.reset();
     this.carouselForm.reset();
+    this.storeForm.reset();
   }
 
   formatDate(dateStr) {
@@ -630,6 +639,156 @@ class Admin {
   
     this.editingId = id;
     this.openModal(this.musicModal);
+  }
+
+  async fetchStore() {
+    try {
+      const { data: items, error } = await getSupabase()
+        .from('store')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (error) throw error;
+      return items;
+
+    } catch(error) {
+      console.error(error)
+    }
+  }
+
+  async renderStore() {
+    const items = await this.fetchStore();
+    if (!items) return;
+
+    this.storeTable.innerHTML = `
+    <tr>
+      <th>Image</th><th>Title</th><th>Price</th><th>Link</th><th>Order</th><th>Actions</th>
+    </tr>
+    `;
+
+    items.forEach(item => {
+      const row = document.createElement('tr');
+      row.dataset.id = item.id;
+      row.innerHTML = `
+        <td><img src="${item.image}" alt="${item.title}" loading="lazy" style="width:50px; height:auto;"></td>
+        <td>${item.title}</td>
+        <td>${item.price ?? ''}</td>
+        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.link ?? ''}</td>
+        <td>${item.order ?? ''}</td>
+        <td>
+          <button class="button edit" data-id="${item.id}">Edit</button>
+          <button class="button delete" data-id="${item.id}">Delete</button>
+        </td>
+      `;
+      this.storeTable.appendChild(row);
+    });
+  }
+
+  async uploadStoreImage(file) {
+    const fileName = `${Date.now()}-${file.name}`;
+    const { error } = await getSupabase()
+      .storage
+      .from('covers')
+      .upload(fileName, file);
+    if (error) throw error;
+    const { data: { publicUrl } } = getSupabase()
+      .storage
+      .from('covers')
+      .getPublicUrl(fileName);
+    return publicUrl;
+  }
+
+  async updateStore(payload, id) {
+    try {
+      const { error } = await getSupabase()
+        .from('store')
+        .update(payload)
+        .eq('id', id);
+      if (error) throw error;
+    } catch (error) {
+      console.error('Error updating store item', error);
+    }
+  }
+
+  async handleAddStore(event) {
+    event.preventDefault();
+    const formData = new FormData(this.storeForm);
+    const info = Object.fromEntries(formData.entries());
+    const imageFile = this.storeForm.querySelector('#store-image').files[0];
+
+    if (!info.title) {
+      alert('Title is required');
+      return;
+    }
+
+    if (!this.editingId && !imageFile) {
+      alert('Image is required');
+      return;
+    }
+
+    try {
+      let imageUrl;
+      if (imageFile) imageUrl = await this.uploadStoreImage(imageFile);
+
+      const payload = {
+        title: info.title,
+        price: info.price || null,
+        link: info.link || null,
+        order: info.order ? parseInt(info.order) : null
+      };
+
+      if (imageUrl) payload.image = imageUrl;
+
+      if (this.editingId) {
+        await this.updateStore(payload, this.editingId);
+      } else {
+        const { error } = await getSupabase().from('store').insert(payload);
+        if (error) throw error;
+      }
+
+      this.editingId = null;
+      this.storeForm.reset();
+      this.closeModal();
+      this.renderStore();
+    } catch (err) {
+      console.error('Error saving store item', err);
+    }
+  }
+
+  async handleEditStore(id) {
+    const items = await this.fetchStore();
+    const item = items.find(i => String(i.id) === String(id));
+    if (!item) return;
+
+    this.storeForm.elements.title.value = item.title ?? '';
+    this.storeForm.elements.price.value = item.price ?? '';
+    this.storeForm.elements.link.value = item.link ?? '';
+    this.storeForm.elements.order.value = item.order ?? '';
+
+    this.editingId = id;
+    this.openModal(this.storeModal);
+  }
+
+  async handleDeleteStore(id) {
+    if (!confirm('Are you sure you want to delete this item?')) return;
+    try {
+      const { error } = await getSupabase()
+        .from('store')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+      this.renderStore();
+    } catch (error) {
+      console.error('Error deleting store item', error);
+    }
+  }
+
+  handleStoreTableClick(event) {
+    const editBtn = event.target.closest('.edit');
+    const deleteBtn = event.target.closest('.delete');
+
+    if (editBtn) this.handleEditStore(editBtn.dataset.id);
+    if (deleteBtn) this.handleDeleteStore(deleteBtn.dataset.id);
   }
 
   async signOut() {

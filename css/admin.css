@@ -67,7 +67,7 @@ header .button {
 /* -------------------- */
 /* Sections             */
 /* -------------------- */
-#live-admin, #videos-admin, #music-admin {
+#live-admin, #videos-admin, #music-admin, #store-admin {
   background-color: var(--card-bg);
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -96,7 +96,7 @@ header .button {
 /* -------------------- */
 /* Tables               */
 /* -------------------- */
-#live-table, #video-table, #music-table {
+#live-table, #video-table, #music-table, #store-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 1rem;
@@ -110,7 +110,9 @@ header .button {
 #video-table th,
 #video-table td,
 #music-table th,
-#music-table td {
+#music-table td,
+#store-table th,
+#store-table td {
   border: 1px solid var(--border-soft);
   padding: 0.5rem 1rem;
   text-align: left;
@@ -124,14 +126,16 @@ header .button {
   color: var(--gold);
 }
 
-#music-table th {
+#music-table th,
+#store-table th {
   background-color: var(--bg);
   color: var(--gold);
 }
 
 #live-table tr,
 #video-table tr,
-#music-table tr {
+#music-table tr,
+#store-table tr {
   cursor: pointer;
 }
 
@@ -339,30 +343,34 @@ td .button {
     #video-table thead,
     #music-table thead,
     #carousel-table thead,
+    #store-table thead,
     #live-table tr:first-child,
     #video-table tr:first-child,
     #music-table tr:first-child,
-    #carousel-table tr:first-child {
+    #carousel-table tr:first-child,
+    #store-table tr:first-child {
       display: none;
     }
-  
+
     /* Card layout for rows */
     #live-table tr,
     #video-table tr,
     #music-table tr,
-    #carousel-table tr {
+    #carousel-table tr,
+    #store-table tr {
       display: block;
       margin-bottom: 1rem;
       border: 1px solid var(--border-soft);
       border-radius: 8px;
       padding: 0.75rem;
     }
-  
+
     /* Cell flex layout */
     #live-table td,
     #video-table td,
     #music-table td,
-    #carousel-table td {
+    #carousel-table td,
+    #store-table td {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -392,16 +400,18 @@ td .button {
     #live-table td:last-child,
     #video-table td:last-child,
     #music-table td:last-child,
-    #carousel-table td:last-child {
+    #carousel-table td:last-child,
+    #store-table td:last-child {
       justify-content: flex-end;
       gap: 0.5rem;
       border-bottom: none;
     }
-  
+
     #live-table td:last-child::before,
     #video-table td:last-child::before,
     #music-table td:last-child::before,
-    #carousel-table td:last-child::before {
+    #carousel-table td:last-child::before,
+    #store-table td:last-child::before {
       content: "Actions";
       font-weight: bold;
       flex: 1;
@@ -436,6 +446,13 @@ td .button {
     #carousel-table td:nth-child(4)::before { content: "Description"; font-weight: bold; }
     #carousel-table td:nth-child(5)::before { content: "Link"; font-weight: bold; }
     #carousel-table td:nth-child(6)::before { content: "Order"; font-weight: bold; }
+
+    /* Store labels */
+    #store-table td:nth-child(1)::before { content: "Image"; font-weight: bold; }
+    #store-table td:nth-child(2)::before { content: "Title"; font-weight: bold; }
+    #store-table td:nth-child(3)::before { content: "Price"; font-weight: bold; }
+    #store-table td:nth-child(4)::before { content: "Link"; font-weight: bold; }
+    #store-table td:nth-child(5)::before { content: "Order"; font-weight: bold; }
   
     /* Buttons */
     td .button {

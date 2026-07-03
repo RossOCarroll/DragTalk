@@ -698,6 +698,9 @@ footer.social svg:hover {
   align-items: center;
   gap: 0.75rem;
   margin-top: 2rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-soft);
 }
 
 .bands-in-town h3 {
@@ -760,19 +763,18 @@ footer.social svg:hover {
   display: block;
 }
 
-.store-item-tee img {
-  width: 66%;
-  height: auto;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: .92;
-}
-
 .store-item-title {
   font-family: 'Archivo', sans-serif;
   font-weight: 600;
   font-size: .9rem;
   color: var(--text-light);
+}
+
+.store-item-price {
+  font-family: 'Funnel Sans', sans-serif;
+  font-size: .85rem;
+  color: var(--text-secondary);
+  margin-top: -.3rem;
 }
 
 .store-shop-button {

@@ -227,6 +227,7 @@ class BandPage {
       if (url.includes('videos-section.html')) await this.loadVideos(section);
       if (url.includes('music-section.html')) await this.loadMusic(section);
       if (url.includes('live-section.html')) await this.loadLive(section);
+      if (url.includes('store-section.html')) await this.loadStore(section);
       if (url.includes('sign-up-section.html')) await this.loadSignUp(section);
 
     } catch (err) {
@@ -252,6 +253,7 @@ class BandPage {
           if (sec === 'live') await this.loadLive(node);
           if (sec === 'music') await this.loadMusic(node);
           if (sec === 'videos') await this.loadVideos(node);
+          if (sec === 'store') await this.loadStore(node);
           if (sec === 'sign-up') await this.loadSignUp(node);
   
         } catch (secErr) {
@@ -417,6 +419,62 @@ class BandPage {
     } catch (err) {
       if (loading) loading.textContent = 'Failed to load music.';
       console.error('Error loading music', err);
+    }
+  }
+
+  async loadStore(section) {
+    const loading = section.querySelector('.section-loading');
+    try {
+      const { data: items, error } = await getSupabase()
+        .from('store')
+        .select('*')
+        .order('order', { ascending: true });
+
+      if (error) throw error;
+      if (loading) loading.remove();
+
+      const grid = section.querySelector('.store-grid') || section;
+
+      items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('store-item');
+
+        const imageDiv = document.createElement('div');
+        imageDiv.classList.add('store-item-image');
+
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = item.title;
+        img.loading = 'lazy';
+        imageDiv.appendChild(img);
+
+        const title = document.createElement('div');
+        title.classList.add('store-item-title');
+        title.textContent = item.title;
+
+        const shop = document.createElement('a');
+        shop.classList.add('button', 'store-shop-button');
+        shop.href = item.link || 'https://drag-talk.myspreadshop.com/all';
+        shop.target = '_blank';
+        shop.textContent = 'Shop';
+
+        itemDiv.appendChild(imageDiv);
+        itemDiv.appendChild(title);
+
+        if (item.price) {
+          const price = document.createElement('div');
+          price.classList.add('store-item-price');
+          price.textContent = item.price;
+          itemDiv.appendChild(price);
+        }
+
+        itemDiv.appendChild(shop);
+        grid.appendChild(itemDiv);
+      });
+
+    } catch (err) {
+      if (loading) loading.textContent = 'Failed to load store.';
+      console.error('Error loading store', err);
     }
   }
 
