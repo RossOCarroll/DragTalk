@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { COUNTRIES } from './countries.js';
 
 let supabaseClient;
 
@@ -40,17 +41,47 @@ class BandPage {
     this.navLinks = document.querySelector('nav ul.nav-links');
     this.modal = document.getElementById('modal');
     this.closeBtn = document.querySelector('.modal-close');
+    this.footer = document.querySelector('footer.social');
     this.hamburgerSetUp();
+
+    const footerYear = document.getElementById('footer-year');
+    if (footerYear) footerYear.textContent = new Date().getFullYear();
 
     window.addEventListener('scroll', () => this.updateHeaderState(), { passive: true });
 
     window.addEventListener('load', () => {
-      this.modal.classList.remove('hidden');
+      this.openPromoModal();
     });
 
     this.closeBtn.addEventListener('click', () => {
-      this.modal.classList.add('hidden');
+      this.closePromoModal();
     });
+
+    this.modal.addEventListener('click', e => {
+      if (e.target === this.modal) this.closePromoModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape' && !this.modal.classList.contains('hidden')) {
+        this.closePromoModal();
+      }
+    });
+  }
+
+  openPromoModal() {
+    this.modal.classList.remove('hidden');
+    this.modal.inert = false;
+    this.header.inert = true;
+    this.mainContent.inert = true;
+    if (this.footer) this.footer.inert = true;
+  }
+
+  closePromoModal() {
+    this.modal.classList.add('hidden');
+    this.modal.inert = true;
+    this.header.inert = false;
+    this.mainContent.inert = false;
+    if (this.footer) this.footer.inert = false;
   }
 
   updateHeaderState() {
@@ -106,15 +137,34 @@ class BandPage {
         const slideEl = document.createElement('div');
         slideEl.classList.add('carousel-slide');
         if (i === 0) slideEl.classList.add('active');
-        slideEl.innerHTML = `
-          <img src="${slide.image}" alt="${slide.title}">
-          <div class="carousel-info">
-            <p class="modal-subtitle">${slide.subtitle ?? ''}</p>
-            <h2 class="modal-title">${slide.title}</h2>
-            <p class="modal-desc">${slide.description ?? ''}</p>
-            <a href="${slide.link ?? '#'}" class="modal-cta" target="_blank">Buy Now</a>
-          </div>
-        `;
+
+        const img = document.createElement('img');
+        img.src = slide.image;
+        img.alt = slide.title ?? '';
+
+        const info = document.createElement('div');
+        info.classList.add('carousel-info');
+
+        const subtitle = document.createElement('p');
+        subtitle.classList.add('modal-subtitle');
+        subtitle.textContent = slide.subtitle ?? '';
+
+        const title = document.createElement('h2');
+        title.classList.add('modal-title');
+        title.textContent = slide.title ?? '';
+
+        const desc = document.createElement('p');
+        desc.classList.add('modal-desc');
+        desc.textContent = slide.description ?? '';
+
+        const cta = document.createElement('a');
+        cta.classList.add('modal-cta');
+        cta.href = slide.link || '#';
+        cta.target = '_blank';
+        cta.textContent = 'Buy Now';
+
+        info.append(subtitle, title, desc, cta);
+        slideEl.append(img, info);
         track.appendChild(slideEl);
   
         const dot = document.createElement('div');
@@ -155,19 +205,26 @@ class BandPage {
     }
   }
 
+  setMobileNavInert(isInert) {
+    this.mainContent.inert = isInert;
+    if (this.footer) this.footer.inert = isInert;
+  }
+
   hamburgerSetUp() {
     if (!this.mobileButton || !this.navLinks) return;
 
     this.mobileButton.addEventListener('click', (e) => {
       e.stopPropagation();
-      this.navLinks.classList.toggle('show');
-      this.mobileButton.classList.toggle('active');
+      const isOpen = this.navLinks.classList.toggle('show');
+      this.mobileButton.classList.toggle('active', isOpen);
+      this.setMobileNavInert(isOpen);
     });
 
     document.addEventListener('click', (e) => {
       if (!this.mobileButton.contains(e.target) && !this.navLinks.contains(e.target)) {
         this.navLinks.classList.remove('show');
         this.mobileButton.classList.remove('active');
+        this.setMobileNavInert(false);
       }
     });
 
@@ -175,6 +232,7 @@ class BandPage {
       link.addEventListener('click', () => {
         this.navLinks.classList.remove('show');
         this.mobileButton.classList.remove('active');
+        this.setMobileNavInert(false);
       });
     });
   }
@@ -276,7 +334,12 @@ class BandPage {
   
       if (error) throw error;
       if (loading) loading.remove();
-  
+
+      document.querySelector('.video-lightbox')?.remove();
+      if (this.videoLightboxKeydown) {
+        document.removeEventListener('keydown', this.videoLightboxKeydown);
+      }
+
       const lightbox = document.createElement('div');
       lightbox.classList.add('video-lightbox', 'hidden');
       lightbox.innerHTML = `
@@ -292,23 +355,24 @@ class BandPage {
         </div>
       `;
       document.body.appendChild(lightbox);
-  
+
       const lightboxIframe = lightbox.querySelector('iframe');
       const lightboxTitle = lightbox.querySelector('.video-lightbox-title');
       const closeBtn = lightbox.querySelector('.video-lightbox-close');
-  
+
       const closeLightbox = () => {
         lightbox.classList.add('hidden');
         lightboxIframe.src = '';
       };
-  
+
       closeBtn.addEventListener('click', closeLightbox);
       lightbox.addEventListener('click', e => {
         if (e.target === lightbox) closeLightbox();
       });
-      document.addEventListener('keydown', e => {
+      this.videoLightboxKeydown = e => {
         if (e.key === 'Escape') closeLightbox();
-      });
+      };
+      document.addEventListener('keydown', this.videoLightboxKeydown);
   
       const grid = document.createElement('div');
       grid.classList.add('video-grid');
@@ -514,7 +578,7 @@ class BandPage {
         dates.forEach(d => {
           const entry = document.createElement('div');
           entry.classList.add('tour-entry');
-          entry.innerHTML = this.buildDate(d);
+          entry.appendChild(this.buildDate(d));
           datesDiv.appendChild(entry);
         });
       };
@@ -542,20 +606,42 @@ class BandPage {
       day: '2-digit',
       timeZone: 'UTC'
     });
-  
-    return `
-      <div class="tour-info">
-        <p class="tour-date">${formattedDate}</p>
-        <p class="tour-time">${time}</p>
-        <p class="tour-location">${city}, ${country}</p>
-        <p class="tour-venue">${venue}</p>
-      </div>
-      <div class="tour-tickets">
-        <a href="${ticketUrl}" target="_blank" ${soldOut ? 'class="sold-out"' : ''}>
-          ${soldOut ? 'Sold Out' : 'Tickets'}
-        </a>
-      </div>
-    `;
+
+    const fragment = document.createDocumentFragment();
+
+    const info = document.createElement('div');
+    info.classList.add('tour-info');
+
+    const dateEl = document.createElement('p');
+    dateEl.classList.add('tour-date');
+    dateEl.textContent = formattedDate;
+
+    const timeEl = document.createElement('p');
+    timeEl.classList.add('tour-time');
+    timeEl.textContent = time;
+
+    const locationEl = document.createElement('p');
+    locationEl.classList.add('tour-location');
+    locationEl.textContent = `${city}, ${country}`;
+
+    const venueEl = document.createElement('p');
+    venueEl.classList.add('tour-venue');
+    venueEl.textContent = venue;
+
+    info.append(dateEl, timeEl, locationEl, venueEl);
+
+    const tickets = document.createElement('div');
+    tickets.classList.add('tour-tickets');
+
+    const ticketLink = document.createElement('a');
+    ticketLink.href = ticketUrl;
+    ticketLink.target = '_blank';
+    if (soldOut) ticketLink.classList.add('sold-out');
+    ticketLink.textContent = soldOut ? 'Sold Out' : 'Tickets';
+
+    tickets.appendChild(ticketLink);
+    fragment.append(info, tickets);
+    return fragment;
   }
 
   createPastUpcomingLinks(onPast, onUpcoming) {
@@ -587,14 +673,11 @@ class BandPage {
   async loadSignUp(section) {
     try {
       const countrySelect = section.querySelector('#country');
-      const res = await fetch('https://restcountries.com/v3.1/all?fields=name,cca2');
-      const countries = await res.json();
-      countries.sort((a,b) => a.name.common.localeCompare(b.name.common));
 
-      countries.forEach(c => {
+      COUNTRIES.forEach(c => {
         const option = document.createElement('option');
-        option.value = c.cca2;
-        option.textContent = c.name.common;
+        option.value = c.code;
+        option.textContent = c.name;
         countrySelect.appendChild(option);
       });
 

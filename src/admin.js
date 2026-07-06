@@ -148,6 +148,29 @@ class Admin {
     });
   }
 
+  buildActionsCell(id) {
+    const td = document.createElement('td');
+
+    const editBtn = document.createElement('button');
+    editBtn.classList.add('button', 'edit');
+    editBtn.dataset.id = id;
+    editBtn.textContent = 'Edit';
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.classList.add('button', 'delete');
+    deleteBtn.dataset.id = id;
+    deleteBtn.textContent = 'Delete';
+
+    td.append(editBtn, deleteBtn);
+    return td;
+  }
+
+  buildCell(text) {
+    const td = document.createElement('td');
+    td.textContent = text ?? '';
+    return td;
+  }
+
   normalizeYouTubeUrl(url) {
     const watchMatch = url.match(/[?&]v=([^&]+)/);
     const shortMatch = url.match(/youtu\.be\/([^?]+)/);
@@ -190,21 +213,26 @@ class Admin {
 
     shows.forEach(show => {
       const row = document.createElement('tr');
-      row.innerHTML = `
-        <td>${this.formatDate(show.date)}</td>
-        <td>${show.time}</td>
-        <td>${show.city}</td>
-        <td>${show.country}</td>
-        <td>${show.venue}</td>
-        <td><a href="${show.ticketUrl}" target="_blank">Link</a></td>
-        <td>${show.soldOut ? 'Yes' : 'No'}</td>
-        <td>${show.notes || ''}</td>
-        <td>
-          <button class="button edit" data-id="${show.id}">Edit</button>
-          <button class="button delete" data-id="${show.id}">Delete</button>
-        </td>
-      `
       row.dataset.id = show.id;
+
+      const ticketTd = document.createElement('td');
+      const ticketLink = document.createElement('a');
+      ticketLink.href = show.ticketUrl;
+      ticketLink.target = '_blank';
+      ticketLink.textContent = 'Link';
+      ticketTd.appendChild(ticketLink);
+
+      row.append(
+        this.buildCell(this.formatDate(show.date)),
+        this.buildCell(show.time),
+        this.buildCell(show.city),
+        this.buildCell(show.country),
+        this.buildCell(show.venue),
+        ticketTd,
+        this.buildCell(show.soldOut ? 'Yes' : 'No'),
+        this.buildCell(show.notes || ''),
+        this.buildActionsCell(show.id)
+      );
       this.liveTable.appendChild(row);
     })
   }
@@ -237,14 +265,18 @@ class Admin {
     videos.forEach(video => {
       const row = document.createElement('tr');
       row.dataset.id = video.id;
-      row.innerHTML = `
-        <td>${video.title}</td>
-        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${video.src}</td>
-        <td>
-          <button class="button edit" data-id="${video.id}">Edit</button>
-          <button class="button delete" data-id="${video.id}">Delete</button>
-        </td>
-      `
+
+      const srcTd = this.buildCell(video.src);
+      srcTd.style.maxWidth = '200px';
+      srcTd.style.overflow = 'hidden';
+      srcTd.style.textOverflow = 'ellipsis';
+      srcTd.style.whiteSpace = 'nowrap';
+
+      row.append(
+        this.buildCell(video.title),
+        srcTd,
+        this.buildActionsCell(video.id)
+      );
       this.videoTable.appendChild(row);
     })
   }
@@ -276,18 +308,19 @@ class Admin {
 
     albums.forEach(album => {
       const tr = document.createElement('tr');
-  
+
       const coverTd = document.createElement('td');
-      coverTd.innerHTML = `<img src="${album.cover}" alt="${album.title}" loading="lazy" style="width:50px; height:auto;">`;
+      const coverImg = document.createElement('img');
+      coverImg.src = album.cover;
+      coverImg.alt = album.title ?? '';
+      coverImg.loading = 'lazy';
+      coverImg.style.width = '50px';
+      coverImg.style.height = 'auto';
+      coverTd.appendChild(coverImg);
       tr.appendChild(coverTd);
-  
-      const titleTd = document.createElement('td');
-      titleTd.textContent = album.title;
-      tr.appendChild(titleTd);
-  
-      const yearTd = document.createElement('td');
-      yearTd.textContent = album.releaseYear;
-      tr.appendChild(yearTd);
+
+      tr.appendChild(this.buildCell(album.title));
+      tr.appendChild(this.buildCell(album.releaseYear));
 
       const platforms = [
         { url: album.spotify, icon: 'assets/img/svg/spotify.svg', name: 'Spotify' },
@@ -295,22 +328,29 @@ class Admin {
         { url: album.appleMusic, icon: 'assets/img/svg/apple.svg', name: 'Apple Music' },
         { url: album.youtube, icon: 'assets/img/svg/youtube.svg', name: 'YouTube' }
       ];
-  
+
       const streamingTd = document.createElement('td');
-      const streamingHtml = platforms
+      platforms
         .filter(p => p.url)
-        .map(p => `<a href="${p.url}" target="_blank" title="${p.name}" style="margin-right:5px;"><img src="${p.icon}" alt="${p.name}" style="width:24px; vertical-align:middle;"></a>`)
-        .join('');
-      streamingTd.innerHTML = streamingHtml;
+        .forEach(p => {
+          const link = document.createElement('a');
+          link.href = p.url;
+          link.target = '_blank';
+          link.title = p.name;
+          link.style.marginRight = '5px';
+
+          const icon = document.createElement('img');
+          icon.src = p.icon;
+          icon.alt = p.name;
+          icon.style.width = '24px';
+          icon.style.verticalAlign = 'middle';
+
+          link.appendChild(icon);
+          streamingTd.appendChild(link);
+        });
       tr.appendChild(streamingTd);
-  
-      const actionsTd = document.createElement('td');
-      actionsTd.innerHTML = `
-        <button class="button edit" data-id="${album.id}">Edit</button>
-        <button class="button delete" data-id="${album.id}">Delete</button>
-      `;
-      tr.appendChild(actionsTd);
-  
+
+      tr.appendChild(this.buildActionsCell(album.id));
       this.musicTable.appendChild(tr);
     });
   }
@@ -669,17 +709,30 @@ class Admin {
     items.forEach(item => {
       const row = document.createElement('tr');
       row.dataset.id = item.id;
-      row.innerHTML = `
-        <td><img src="${item.image}" alt="${item.title}" loading="lazy" style="width:50px; height:auto;"></td>
-        <td>${item.title}</td>
-        <td>${item.price ?? ''}</td>
-        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.link ?? ''}</td>
-        <td>${item.order ?? ''}</td>
-        <td>
-          <button class="button edit" data-id="${item.id}">Edit</button>
-          <button class="button delete" data-id="${item.id}">Delete</button>
-        </td>
-      `;
+
+      const imageTd = document.createElement('td');
+      const img = document.createElement('img');
+      img.src = item.image;
+      img.alt = item.title ?? '';
+      img.loading = 'lazy';
+      img.style.width = '50px';
+      img.style.height = 'auto';
+      imageTd.appendChild(img);
+
+      const linkTd = this.buildCell(item.link ?? '');
+      linkTd.style.maxWidth = '200px';
+      linkTd.style.overflow = 'hidden';
+      linkTd.style.textOverflow = 'ellipsis';
+      linkTd.style.whiteSpace = 'nowrap';
+
+      row.append(
+        imageTd,
+        this.buildCell(item.title),
+        this.buildCell(item.price ?? ''),
+        linkTd,
+        this.buildCell(item.order ?? ''),
+        this.buildActionsCell(item.id)
+      );
       this.storeTable.appendChild(row);
     });
   }
@@ -826,18 +879,24 @@ class Admin {
     slides.forEach(slide => {
       const row = document.createElement('tr');
       row.dataset.id = slide.id;
-      row.innerHTML = `
-        <td><img src="${slide.image}" alt="${slide.title}" style="width:50px; height:auto;"></td>
-        <td>${slide.title}</td>
-        <td>${slide.subtitle ?? ''}</td>
-        <td>${slide.description ?? ''}</td>
-        <td>${slide.link ?? ''}</td>
-        <td>${slide.order ?? ''}</td>
-        <td>
-          <button class="button edit" data-id="${slide.id}">Edit</button>
-          <button class="button delete" data-id="${slide.id}">Delete</button>
-        </td>
-      `;
+
+      const imageTd = document.createElement('td');
+      const img = document.createElement('img');
+      img.src = slide.image;
+      img.alt = slide.title ?? '';
+      img.style.width = '50px';
+      img.style.height = 'auto';
+      imageTd.appendChild(img);
+
+      row.append(
+        imageTd,
+        this.buildCell(slide.title),
+        this.buildCell(slide.subtitle ?? ''),
+        this.buildCell(slide.description ?? ''),
+        this.buildCell(slide.link ?? ''),
+        this.buildCell(slide.order ?? ''),
+        this.buildActionsCell(slide.id)
+      );
       this.carouselTable.appendChild(row);
     });
   }
