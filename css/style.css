@@ -301,7 +301,7 @@ nav a.active {
   min-height: 94vh;
   background-image:
     linear-gradient(180deg, rgba(10,4,3,.55) 0%, rgba(10,4,3,.25) 22%, rgba(10,4,3,.3) 60%, rgba(10,4,3,.65) 100%),
-    url('/assets/img/hero-band.jpg');
+    url('/assets/img/twins.jpg');
   background-size: auto, cover;
   background-position: center top, center 75%;
   display: flex;
@@ -324,8 +324,8 @@ nav a.active {
     aspect-ratio: 3 / 2;
     background-image:
       linear-gradient(180deg, rgba(10,4,3,.55) 0%, rgba(10,4,3,.25) 22%, rgba(10,4,3,.3) 60%, rgba(10,4,3,.65) 100%),
-      url('/assets/img/hero-band.jpg');
-    background-position: center top, center 20%;
+      url('/assets/img/twins.jpg');
+    background-position: center top, center 75%;
   }
 
   .home-hero .home-logo-center {
