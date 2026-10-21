@@ -301,19 +301,36 @@ class BandPage {
       this.updateHeaderState();
       this.renderFeatureRelease(homeSection);
 
+      const linkTagToSection = (node, sectionName) => {
+        const tag = node.querySelector('.section-tag');
+        if (!tag) return;
+        tag.href = '#';
+        tag.removeAttribute('target');
+        tag.addEventListener('click', e => {
+          e.preventDefault();
+          document.querySelector(`nav a[data-section="${sectionName}"]`)?.click();
+        });
+      };
+
       const sections = ['live', 'store', 'videos', 'music', 'sign-up'];
-  
+
       for (const sec of sections) {
         try {
           const node = await this.fetchSectionNode(`${BASE_PATH}sections/${sec}-section.html`);
           homeSection.appendChild(node);
-  
+
           if (sec === 'live') await this.loadLive(node);
           if (sec === 'music') await this.loadMusic(node);
-          if (sec === 'videos') await this.loadVideos(node);
-          if (sec === 'store') await this.loadStore(node);
+          if (sec === 'videos') {
+            await this.loadVideos(node);
+            linkTagToSection(node, 'videos');
+          }
+          if (sec === 'store') {
+            await this.loadStore(node);
+            linkTagToSection(node, 'store');
+          }
           if (sec === 'sign-up') await this.loadSignUp(node);
-  
+
         } catch (secErr) {
           console.error(`Failed loading section: ${sec}`, secErr);
         }
@@ -330,7 +347,7 @@ class BandPage {
       const { data: videos, error } = await getSupabase()
         .from('videos')
         .select('*')
-        .order('id', { ascending: true });
+        .order('order', { ascending: true });
   
       if (error) throw error;
       if (loading) loading.remove();

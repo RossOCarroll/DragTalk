@@ -242,7 +242,7 @@ class Admin {
       const { data: videos, error } = await getSupabase()
         .from('videos')
         .select('*')
-        .order('id', { ascending: true });
+        .order('order', { ascending: true });
 
       if (error) throw error;
       return videos;
@@ -258,7 +258,7 @@ class Admin {
     this.videoTable.innerHTML = '';
     this.videoTable.innerHTML = `
     <tr>
-      <th>Title</th><th>link</th><th>Actions</th>
+      <th>Title</th><th>link</th><th>Order</th><th>Actions</th>
     </tr>
     `;
 
@@ -275,6 +275,7 @@ class Admin {
       row.append(
         this.buildCell(video.title),
         srcTd,
+        this.buildCell(video.order ?? ''),
         this.buildActionsCell(video.id)
       );
       this.videoTable.appendChild(row);
@@ -505,7 +506,8 @@ class Admin {
   
     const payload = {
       title: videoInfo.title,
-      src: videoInfo.src
+      src: videoInfo.src,
+      order: videoInfo.order ? parseInt(videoInfo.order) : null
     };
   
     if (!payload.title || !payload.src) {
@@ -554,6 +556,7 @@ class Admin {
 
     this.videoForm.elements.title.value = video.title;
     this.videoForm.elements.src.value = video.src;
+    this.videoForm.elements.order.value = video.order ?? '';
 
     this.editingId = id;
 
