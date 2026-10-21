@@ -105,7 +105,6 @@ class BandPage {
     img.alt = slide.title ?? '';
     wrap.querySelector('.feature-title').textContent = slide.title ?? '';
     wrap.querySelector('.feature-desc').textContent = slide.description ?? '';
-    wrap.querySelector('.feature-listen').href = slide.link || '#';
     wrap.classList.add('is-ready');
   }
 
