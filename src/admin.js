@@ -171,6 +171,18 @@ class Admin {
     return td;
   }
 
+  buildLinkCell(url) {
+    const td = document.createElement('td');
+    if (!url) return td;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.textContent = 'Link';
+    td.appendChild(link);
+    return td;
+  }
+
   normalizeYouTubeUrl(url) {
     const watchMatch = url.match(/[?&]v=([^&]+)/);
     const shortMatch = url.match(/youtu\.be\/([^?]+)/);
@@ -215,20 +227,13 @@ class Admin {
       const row = document.createElement('tr');
       row.dataset.id = show.id;
 
-      const ticketTd = document.createElement('td');
-      const ticketLink = document.createElement('a');
-      ticketLink.href = show.ticketUrl;
-      ticketLink.target = '_blank';
-      ticketLink.textContent = 'Link';
-      ticketTd.appendChild(ticketLink);
-
       row.append(
         this.buildCell(this.formatDate(show.date)),
         this.buildCell(show.time),
         this.buildCell(show.city),
         this.buildCell(show.country),
         this.buildCell(show.venue),
-        ticketTd,
+        this.buildLinkCell(show.ticketUrl),
         this.buildCell(show.soldOut ? 'Yes' : 'No'),
         this.buildCell(show.notes || ''),
         this.buildActionsCell(show.id)
@@ -722,17 +727,11 @@ class Admin {
       img.style.height = 'auto';
       imageTd.appendChild(img);
 
-      const linkTd = this.buildCell(item.link ?? '');
-      linkTd.style.maxWidth = '200px';
-      linkTd.style.overflow = 'hidden';
-      linkTd.style.textOverflow = 'ellipsis';
-      linkTd.style.whiteSpace = 'nowrap';
-
       row.append(
         imageTd,
         this.buildCell(item.title),
         this.buildCell(item.price ?? ''),
-        linkTd,
+        this.buildLinkCell(item.link),
         this.buildCell(item.order ?? ''),
         this.buildActionsCell(item.id)
       );
@@ -896,7 +895,7 @@ class Admin {
         this.buildCell(slide.title),
         this.buildCell(slide.subtitle ?? ''),
         this.buildCell(slide.description ?? ''),
-        this.buildCell(slide.link ?? ''),
+        this.buildLinkCell(slide.link),
         this.buildCell(slide.order ?? ''),
         this.buildActionsCell(slide.id)
       );
