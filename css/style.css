@@ -1094,29 +1094,30 @@ footer.social svg:hover {
   width: 100%;
 }
 
+/* All slides share one grid cell so the track is always as tall as the
+   tallest slide — keeps the arrows and dots still when slides change. */
 .carousel-track {
   overflow: hidden;
   width: 100%;
-  position: relative;
   flex: 1;
+  display: grid;
 }
 
 .carousel-slide {
+  grid-area: 1 / 1;
+  align-self: center;
   display: flex;
   align-items: center;
   gap: 3rem;
   opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  visibility: hidden;
   pointer-events: none;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.6s ease, visibility 0.6s;
 }
 
 .carousel-slide.active {
   opacity: 1;
-  position: relative;
+  visibility: visible;
   pointer-events: all;
 }
 
@@ -1375,9 +1376,6 @@ select:-webkit-autofill:focus {
     font-size: 0.85rem;
   }
 
-  .carousel-track {
-    min-height: 450px;
-  }
 }
 
 /* -------------------- */
