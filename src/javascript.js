@@ -569,14 +569,23 @@ class BandPage {
       if (error) throw error;
       if (loading) loading.remove();
 
-      const today = new Date();
-      today.setHours(0,0,0,0);
+      // Show dates are stored as midnight UTC, so compare against the visitor's
+      // calendar date at midnight UTC — otherwise US visitors see a show move to
+      // "past" on the day itself.
+      const now = new Date();
+      const today = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
 
       const past = liveDates.filter(d => new Date(d.date) < today);
       const upcoming = liveDates.filter(d => new Date(d.date) >= today);
 
       const tag = section.querySelector('.section-tag');
-      if (tag) tag.textContent = `${today.getFullYear()} TOUR · ${String(upcoming.length).padStart(2, '0')} DATES`;
+      if (tag) {
+        if (upcoming.length) {
+          tag.textContent = `${now.getFullYear()} TOUR · ${String(upcoming.length).padStart(2, '0')} DATES`;
+        } else {
+          tag.remove();
+        }
+      }
 
       const container = document.createElement('div');
       container.classList.add('live-body');
