@@ -343,13 +343,11 @@ class Admin {
           link.href = p.url;
           link.target = '_blank';
           link.title = p.name;
-          link.style.marginRight = '5px';
+          link.classList.add('stream-link');
 
           const icon = document.createElement('img');
           icon.src = p.icon;
           icon.alt = p.name;
-          icon.style.width = '24px';
-          icon.style.verticalAlign = 'middle';
 
           link.appendChild(icon);
           streamingTd.appendChild(link);

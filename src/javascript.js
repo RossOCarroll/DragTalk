@@ -534,7 +534,7 @@ class BandPage {
 
         const shop = document.createElement('a');
         shop.classList.add('button', 'store-shop-button');
-        shop.href = item.link || 'https://drag-talk.myspreadshop.com/all';
+        shop.href = item.link || 'https://www.hellomerch.com/collections/drag-talk';
         shop.target = '_blank';
         shop.textContent = 'Shop';
 

@@ -139,6 +139,22 @@ header .button {
   cursor: pointer;
 }
 
+.stream-link {
+  margin-right: 5px;
+}
+
+.stream-link img {
+  width: 24px;
+  vertical-align: middle;
+  filter: brightness(0) invert(1);
+  transition: filter 0.2s ease;
+}
+
+.stream-link:hover img {
+  /* tints the white icon gold to match --gold */
+  filter: brightness(0) invert(1) sepia(1) saturate(3) hue-rotate(-15deg);
+}
+
 td .button {
   width: 70px;
   min-width: 60px;
