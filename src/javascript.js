@@ -49,10 +49,6 @@ class BandPage {
 
     window.addEventListener('scroll', () => this.updateHeaderState(), { passive: true });
 
-    window.addEventListener('load', () => {
-      this.openPromoModal();
-    });
-
     this.closeBtn.addEventListener('click', () => {
       this.closePromoModal();
     });
@@ -196,8 +192,11 @@ class BandPage {
         prevBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current - 1); startAutoPlay(); });
         nextBtn.addEventListener('click', () => { stopAutoPlay(); goTo(current + 1); startAutoPlay(); });
       }
-  
+
       startAutoPlay();
+
+      // Open only once real slides exist, so the promo never shows empty
+      if (slides.length) this.openPromoModal();
   
     } catch (err) {
       console.error('Error loading carousel', err);
