@@ -44,7 +44,7 @@ header .button {
 }
 
 #admin-content h1 {
-  font-family: 'Funnel Sans', sans-serif;
+  font-family: 'Didact Gothic', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: .12em;
@@ -54,7 +54,7 @@ header .button {
 }
 
 #admin-content h2 {
-  font-family: 'Archivo', sans-serif;
+  font-family: 'Didact Gothic', sans-serif;
   font-weight: 600;
   font-size: 1.3rem;
   margin-top: 0;
@@ -234,7 +234,7 @@ td .button {
 }
 
 .modal h3 {
-  font-family: 'Funnel Sans', sans-serif;
+  font-family: 'Didact Gothic', sans-serif;
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: .06em;
@@ -266,7 +266,7 @@ td .button {
   border: 1px solid var(--border-strong);
   border-radius: 2px;
   color: var(--text-light);
-  font-family: 'Funnel Sans', sans-serif;
+  font-family: 'Didact Gothic', sans-serif;
   color-scheme: dark;
 }
 
