@@ -2,7 +2,7 @@
   "name": "drag-talk",
   "version": "1.0.0",
   "main": "index.js",
-  "homepage": "https://rossocarroll.github.io/DragTalk/",
+  "homepage": "https://dragxtalk.com/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

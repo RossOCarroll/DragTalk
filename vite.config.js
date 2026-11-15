@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/DragTalk/',
+  base: '/',
   build: {
     rollupOptions: {
       input: {
